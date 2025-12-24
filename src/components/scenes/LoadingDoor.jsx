@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStory, SCENES } from '../../context/StoryContext'
 
@@ -39,19 +39,19 @@ const LoadingDoor = () => {
       {/* Background Particles (Dust) - Simplified CSS implementation */}
       <div className='absolute inset-0 z-0 opacity-30 pointer-events-none'>
         <div
-          className='absolute top-1/4 left-1/4 h-1 w-1 rounded-full bg-white animate-pulse'
+          className='absolute top-1/4 left-1/4 h-1 w-1 rounded-full bg-gray-200 animate-pulse'
           style={{ animationDuration: '3s' }}
         ></div>
         <div
-          className='absolute top-3/4 left-2/3 h-1 w-1 rounded-full bg-white animate-pulse'
+          className='absolute top-3/4 left-2/3 h-1 w-1 rounded-full bg-gray-200 animate-pulse'
           style={{ animationDuration: '4s' }}
         ></div>
         <div
-          className='absolute top-1/3 left-3/4 h-1 w-1 rounded-full bg-white animate-pulse'
+          className='absolute top-1/3 left-3/4 h-1 w-1 rounded-full bg-gray-200 animate-pulse'
           style={{ animationDuration: '2.5s' }}
         ></div>
         <div
-          className='absolute top-2/3 left-1/5 h-1 w-1 rounded-full bg-white animate-pulse'
+          className='absolute top-2/3 left-1/5 h-1 w-1 rounded-full bg-gray-200 animate-pulse'
           style={{ animationDuration: '5s' }}
         ></div>
       </div>
@@ -77,19 +77,25 @@ const LoadingDoor = () => {
               `}
             >
               {/* Door Visual */}
-              <div className='absolute inset-0 rounded-t-full border-4 border-stone-800 bg-stone-900 overflow-hidden flex'>
-                {/* Texture */}
-                <div className="h-full w-full bg-[url('https://images.unsplash.com/photo-1516450137517-162fcdd0709d?q=80&w=1974&auto=format&fit=crop')] bg-cover bg-center sepia brightness-50 contrast-125"></div>
-
+              <div className='absolute inset-0 rounded-sm border-3 border-[#3e1304] bg-[#7f3218] overflow-hidden flex p-5'>
                 {/* Door Knobs/Details */}
-                <div className='absolute top-1/2 right-4 h-4 w-4 rounded-full bg-yellow-900 shadow-inner'></div>
-              </div>
+                <div className='absolute top-[48%] right-4 h-5 w-5 rounded-full bg-yellow-500 shadow-inner'></div>
 
-              {/* Cracks Overlay (SVG or CSS) */}
-              <div className='absolute inset-0 pointer-events-none opacity-40 mix-blend-overlay'>
-                <svg width='100%' height='100%' viewBox='0 0 200 400'>
-                  <path d='M100 0 L100 400' stroke='black' strokeWidth='2' />
-                </svg>
+                <div className='w-full h-full flex flex-col gap-4'>
+                  <div className='flex h-full gap-4'>
+                    <div className='border-3 border-[#3e1304] w-full flex justify-center items-center p-2'>
+                      <div className='border-3 border-[#3e1304] w-full h-full'></div>
+                    </div>
+                    <div className='border-3 border-[#3e1304] w-full flex justify-center items-center p-2'>
+                      <div className='border-3 border-[#3e1304] w-full h-full'></div>
+                    </div>
+                  </div>
+                  <div className='flex h-full w-full'>
+                    <div className='border-3 border-[#3e1304] w-full flex justify-center items-center p-2'>
+                      <div className='border-3 border-[#3e1304] w-full h-full'></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -103,7 +109,7 @@ const LoadingDoor = () => {
 
               <div className='h-1 w-full overflow-hidden rounded-full bg-stone-800'>
                 <motion.div
-                  className='h-full bg-gradient-to-r from-orange-900 to-amber-600'
+                  className='h-full bg-linear-to-r from-orange-900 to-amber-600'
                   style={{ width: `${progress}%` }}
                 />
               </div>

@@ -13,7 +13,6 @@ import WishInteraction from './scenes/WishInteraction'
 import RatingMessage from './scenes/RatingMessage'
 import MakingOf from './scenes/MakingOf'
 
-// Placeholders for scenes - will be replaced as we implement them
 const PlaceholderScene = ({ name }) => (
   <div className='flex h-screen w-full items-center justify-center bg-gray-900 text-white flex-col gap-4'>
     <h1 className='text-4xl font-bold'>{name}</h1>
