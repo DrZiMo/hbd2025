@@ -39,9 +39,8 @@ const TatteredCurtain = ({ side }) => {
       initial={{ rotate: 0 }}
       animate={{ rotate: isLeft ? [0, 2, 0] : [0, -2, 0] }}
       transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-      className={`absolute top-[-10px] ${
-        isLeft ? '-left-8' : '-right-8'
-      } w-24 h-[120%] z-20 pointer-events-none`}
+      className={`absolute -top-2.5 ${isLeft ? '-left-8' : '-right-8'
+        } w-24 h-[120%] z-20 pointer-events-none`}
     >
       <div
         className='w-full h-full bg-stone-900 opacity-90 shadow-2xl'
@@ -89,7 +88,7 @@ const LateRoom = () => {
       <div className='absolute inset-0 bg-[radial-gradient(circle_at_50%_60%,rgba(30,30,40,0.1)_0%,rgba(0,0,0,0.95)_100%)] z-40 pointer-events-none'></div>
 
       {/* 2. Moonlight Beam (behind the window) */}
-      <div className='absolute top-[-10%] right-[5%] w-[400px] h-[150%] bg-blue-100/5 rotate-25 blur-3xl transform origin-top pointer-events-none z-10'></div>
+      <div className='absolute top-[-10%] right-[5%] w-100 h-[150%] bg-blue-100/5 rotate-25 blur-3xl transform origin-top pointer-events-none z-10'></div>
 
       {/* --- BACKGROUND ELEMENTS (THE WALL) --- */}
 
@@ -124,9 +123,9 @@ const LateRoom = () => {
         <div className='absolute top-0 left-1/2 w-3 h-full bg-[#2c241b] shadow-lg z-10'></div>
 
         {/* Broken Glass */}
-        <div className='absolute top-3 left-3 w-[84px] h-[126px] bg-blue-900/20 backdrop-blur-[1px] border-r border-b border-white/10'></div>
-        <div className='absolute bottom-3 right-3 w-[84px] h-[126px] bg-blue-900/20 backdrop-blur-[1px] border-l border-t border-white/10'></div>
-        <div className='absolute top-3 right-3 w-[84px] h-[126px] z-10'>
+        <div className='absolute top-3 left-3 w-21 h-31.5 bg-blue-900/20 backdrop-blur-[1px] border-r border-b border-white/10'></div>
+        <div className='absolute bottom-3 right-3 w-21 h-31.5 bg-blue-900/20 backdrop-blur-[1px] border-l border-t border-white/10'></div>
+        <div className='absolute top-3 right-3 w-21 h-31.5 z-10'>
           <div
             className='absolute top-0 right-0 w-full h-full bg-blue-800/20 backdrop-blur-[2px] border-l border-white/20'
             style={{ clipPath: 'polygon(100% 0, 100% 60%, 60% 0)' }}
@@ -136,7 +135,7 @@ const LateRoom = () => {
             style={{ clipPath: 'polygon(0 0, 40% 0, 0 30%)' }}
           ></div>
         </div>
-        <div className='absolute bottom-3 left-3 w-[84px] h-[126px] z-10'>
+        <div className='absolute bottom-3 left-3 w-21 h-31.5 z-10'>
           <div
             className='absolute bottom-0 left-0 w-full h-full bg-blue-800/15 backdrop-blur-[1px] border-r border-white/20'
             style={{ clipPath: 'polygon(0 100%, 70% 100%, 0 40%)' }}
@@ -186,7 +185,7 @@ const LateRoom = () => {
         >
           {/* Moonlight Reflection on the Floor */}
           {/* This blue blur sits ON the tilted floor, aligning with the window */}
-          <div className='absolute top-[10%] right-[30%] w-[300px] h-[400px] bg-blue-200/5 blur-[50px] rounded-full transform rotate-12'></div>
+          <div className='absolute top-[10%] right-[30%] w-75 h-100 bg-blue-200/5 blur-[50px] rounded-full transform rotate-12'></div>
         </div>
 
         {/* Low lying fog over the floor */}
@@ -204,7 +203,7 @@ const LateRoom = () => {
             <img
               src={BIRTHDAY_HAT_IMG}
               alt='hat'
-              className='w-full scale-40 grayscale-50 absolute top-[-85px] left-[2px] z-2'
+              className='w-full scale-40 grayscale-50 absolute -top-21.25 left-0.5 z-2'
             />
             <img
               src={SKELETON_IMG}
@@ -216,8 +215,8 @@ const LateRoom = () => {
       </div>
 
       {/* The Center Table with Rotten Cake */}
-      <div className='absolute bottom-[-20px] left-1/2 -translate-x-1/2 flex flex-col items-center z-20'>
-        <div className='relative mb-[-10px]'>
+      <div className='absolute -bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center z-20'>
+        <div className='relative -mb-2.5'>
           <div className='relative -top-18'>
             <div className='absolute -top-10 left-10'>
               <Fly delay={0} />
@@ -238,7 +237,7 @@ const LateRoom = () => {
               <img
                 src={CAKE_IMG}
                 alt='Rotten Cake'
-                className='w-40 h-auto object-cover rounded-lg mask-image-gradient absolute top-[-90px] z-6'
+                className='w-40 h-auto object-cover rounded-lg mask-image-gradient absolute -top-22.5 z-6'
                 style={{
                   filter:
                     'grayscale(60%) sepia(80%) hue-rotate(50deg) contrast(120%) brightness(0.6)',
