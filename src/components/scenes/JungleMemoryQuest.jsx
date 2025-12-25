@@ -1,6 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStory, SCENES } from '../../context/StoryContext'
+
+// Assets
+import leafTexture from '../../assets/jungle_leaf.png'
+import seedTexture from '../../assets/magic_seed.png'
+import flowerTexture from '../../assets/tropical_flower.png'
+import soilTexture from '../../assets/soil_mound.png'
+import heartTexture from '../../assets/glowing_heart.png'
 
 const MEMORIES = [
   'Remember when we stayed up all night just talking? That was the moment I knew you were my best friend.',
@@ -10,29 +17,64 @@ const MEMORIES = [
 
 const JungleMemoryQuest = () => {
   const { setCurrentScene } = useStory()
+
+  // Game State
   const [seeds, setSeeds] = useState([
-    { id: 1, x: 20, y: 70, collected: false, planted: false },
-    { id: 2, x: 80, y: 60, collected: false, planted: false },
-    { id: 3, x: 50, y: 85, collected: false, planted: false },
+    { id: 1, x: 20, y: 70, collected: false, planted: false, revealed: false },
+    { id: 2, x: 80, y: 60, collected: false, planted: false, revealed: false },
+    { id: 3, x: 50, y: 85, collected: false, planted: false, revealed: false },
   ])
-  const [holdingSeed, setHoldingSeed] = useState(null)
+
+  // Leaves cover the seeds initially
+  const [leaves, setLeaves] = useState([
+    { id: 1, x: 20, y: 70, rotation: 45, scale: 1.2 },
+    { id: 2, x: 80, y: 60, rotation: -30, scale: 1.1 },
+    { id: 3, x: 50, y: 85, rotation: 10, scale: 1.3 },
+  ])
+
+  const [holdingSeed, setHoldingSeed] = useState(false)
   const [activeMemory, setActiveMemory] = useState(null)
   const [completedMemories, setCompletedMemories] = useState(0)
 
-  const handleCollect = (id) => {
+  // Mouse position for custom cursor
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePos({ x: e.clientX, y: e.clientY })
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
+  const handleLeafClick = (id) => {
+    // Remove the leaf to reveal the seed
+    setLeaves((prev) => prev.filter((l) => l.id !== id))
+    setSeeds((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, revealed: true } : s))
+    )
+  }
+
+  const handleCollectSeed = (id) => {
     if (holdingSeed) return
     setSeeds((prev) =>
       prev.map((s) => (s.id === id ? { ...s, collected: true } : s))
     )
-    setHoldingSeed(id)
+    setHoldingSeed(true)
   }
 
   const handlePlant = () => {
     if (!holdingSeed) return
-    setSeeds((prev) =>
-      prev.map((s) => (s.id === holdingSeed ? { ...s, planted: true } : s))
-    )
-    setHoldingSeed(null)
+
+    // Find the first collected but not planted seed to plant
+    const seedToPlant = seeds.find((s) => s.collected && !s.planted)
+
+    if (seedToPlant) {
+      setSeeds((prev) =>
+        prev.map((s) => (s.id === seedToPlant.id ? { ...s, planted: true } : s))
+      )
+      setHoldingSeed(false)
+    }
   }
 
   const handleReadMemory = (index) => {
@@ -45,59 +87,89 @@ const JungleMemoryQuest = () => {
   const closeMemory = () => {
     setActiveMemory(null)
     if (completedMemories === 3) {
-      setTimeout(() => setCurrentScene(SCENES.PYRAMID_OF_EMOTIONS), 4000)
+      setTimeout(() => setCurrentScene(SCENES.PYRAMID_OF_EMOTIONS), 5000)
     }
   }
 
   return (
-    <div className='relative h-screen w-full overflow-hidden bg-green-900'>
-      {/* Background */}
+    <div className='relative h-screen w-full overflow-hidden bg-[#0a1f0a] cursor-none'>
+      {/* Custom Cursor */}
+      <motion.div
+        className='fixed top-0 left-0 w-8 h-8 pointer-events-none z-[100] mix-blend-difference'
+        animate={{ x: mousePos.x - 16, y: mousePos.y - 16 }}
+        transition={{ type: 'tween', ease: 'linear', duration: 0 }}
+      >
+        <div className='w-full h-full rounded-full border-2 border-white/50 bg-white/20 backdrop-blur-sm' />
+      </motion.div>
+
+      {/* Cursor Item (Seed) when holding */}
+      <AnimatePresence>
+        {holdingSeed && (
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{
+              scale: 1,
+              opacity: 1,
+              x: mousePos.x + 20,
+              y: mousePos.y + 20,
+            }}
+            exit={{ scale: 0, opacity: 0 }}
+            className='fixed z-[99] pointer-events-none'
+          >
+            <img
+              src={seedTexture}
+              alt='Holding seed'
+              className='w-12 h-12 drop-shadow-lg object-contain'
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Dynamic Background */}
       <div
-        className='absolute inset-0 opacity-40 bg-cover bg-center transition-transform hover:scale-105 duration-[20s]'
+        className='absolute inset-0 opacity-60 bg-cover bg-center transition-transform hover:scale-105 duration-[30s]'
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1564357640203-8d6d6783d810?q=80&w=1974&auto=format&fit=crop')`,
         }}
       ></div>
+      <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none' />
 
-      {/* Ambient particles (Fireflies) */}
-      <div className='absolute inset-0 pointer-events-none'>
-        {[...Array(15)].map((_, i) => (
-          <motion.div
-            key={i}
-            className='absolute h-2 w-2 bg-yellow-300 rounded-full blur-[2px] opacity-70'
-            animate={{
-              x: [0, 20, -20, 0],
-              y: [0, -20, 20, 0],
-              opacity: [0.5, 1, 0.5],
-            }}
-            transition={{ duration: Math.random() * 5 + 3, repeat: Infinity }}
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
+      {/* Instructions */}
+      <div className='absolute top-10 w-full flex justify-center z-10 pointer-events-none'>
+        <motion.div
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className='bg-black/40 backdrop-blur-md px-8 py-4 rounded-full border border-emerald-500/30'
+        >
+          <h2 className='text-xl md:text-2xl font-light text-green-50 tracking-wider font-serif'>
+            {completedMemories < 3
+              ? 'Find the hidden seeds, plant them, and listen to the forest.'
+              : 'The Jungle Heart beats for you.'}
+          </h2>
+        </motion.div>
+      </div>
+
+      {/* Central Planting Mound */}
+      <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 flex items-center justify-center z-10'>
+        {/* The Soil */}
+        <div
+          onClick={handlePlant}
+          className={`relative w-full h-full transition-all duration-500 ${
+            holdingSeed
+              ? 'cursor-pointer scale-105 brightness-110 drop-shadow-[0_0_30px_rgba(255,255,100,0.3)]'
+              : ''
+          }`}
+        >
+          <img
+            src={soilTexture}
+            alt='Soil Mound'
+            className='w-full h-full object-contain rounded-full opacity-90 hover:opacity-100 transition-opacity'
           />
-        ))}
-      </div>
 
-      <div className='absolute top-10 left-0 w-full text-center z-10'>
-        <h2 className='text-2xl font-light text-green-100 drop-shadow-lg bg-black/30 inline-block px-4 py-1 rounded-full backdrop-blur-sm'>
-          {completedMemories < 3
-            ? 'Find 3 seeds and plant them in the center soil.'
-            : 'The heart ends the quest.'}
-        </h2>
-      </div>
-
-      {/* Central Planting Spot */}
-      <div
-        onClick={handlePlant}
-        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border-4 border-emerald-600/50 flex items-center justify-center transition-all duration-500 ${
-          holdingSeed
-            ? 'scale-110 bg-emerald-900/40 cursor-pointer shadow-[0_0_50px_emerald]'
-            : 'bg-transparent'
-        }`}
-      >
-        <div className='text-emerald-800 text-sm font-bold opacity-50'>
-          PLANT HERE
+          {/* Glow effect when holding seed */}
+          {holdingSeed && (
+            <div className='absolute inset-0 rounded-full border-4 border-yellow-200/30 animate-pulse pointer-events-none' />
+          )}
         </div>
 
         {/* Planted Flowers */}
@@ -106,62 +178,121 @@ const JungleMemoryQuest = () => {
           .map((s, idx) => (
             <motion.div
               key={s.id}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className='absolute'
+              initial={{ scale: 0, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className='absolute z-20 origin-bottom'
               style={{
                 transform: `rotate(${
                   idx * 120
-                }deg) translate(0, -60px) rotate(-${idx * 120}deg)`, // Position in circle
+                }deg) translate(0, -60px) rotate(-${idx * 120}deg)`, // Position in circle around center
+                left: '50%',
+                top: '50%',
+                marginLeft: '-40px', // half of width
+                marginTop: '-40px',
               }}
             >
-              {/* Flower Blooming */}
               <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.5, type: 'spring' }}
+                whileHover={{ scale: 1.2, rotate: 10 }}
+                className='w-20 h-20 cursor-pointer drop-shadow-2xl'
                 onClick={() => handleReadMemory(idx)}
-                className='relative w-12 h-12 bg-pink-500 rounded-full cursor-pointer hover:scale-110 shadow-lg flex items-center justify-center'
               >
-                <div className='absolute inset-0 rounded-full border-2 border-white animate-ping opacity-20'></div>
-                <span className='text-xl'>📜</span>
+                <img
+                  src={flowerTexture}
+                  alt='Tropical Flower'
+                  className='w-full h-full object-contain animate-spin-slow-reverse'
+                />
+                <div className='absolute inset-0 flex items-center justify-center pointer-events-none'>
+                  <span className='text-2xl animate-bounce'>✨</span>
+                </div>
               </motion.div>
             </motion.div>
           ))}
       </div>
 
-      {/* Scattered Seeds */}
+      {/* Game Area - Leaves and Seeds */}
+      {/* We map over original positions. Leaves are on top of seeds. */}
+      {/* 1. Leaves */}
+      <AnimatePresence>
+        {leaves.map((leaf) => (
+          <motion.div
+            key={`leaf-${leaf.id}`}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: leaf.scale, rotate: leaf.rotation }}
+            exit={{
+              opacity: 0,
+              scale: 0,
+              rotate: leaf.rotation + 90,
+              x: 50,
+              y: 50,
+            }}
+            whileHover={{ scale: leaf.scale * 1.1, rotate: leaf.rotation + 5 }}
+            className='absolute z-30 cursor-pointer drop-shadow-xl'
+            style={{ left: `${leaf.x}%`, top: `${leaf.y}%` }}
+            onClick={() => handleLeafClick(leaf.id)}
+          >
+            <img
+              src={leafTexture}
+              alt='Jungle Leaf'
+              className='w-32 h-32 md:w-40 md:h-40 object-contain filter brightness-110'
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
+
+      {/* 2. Seeds (Underneath leaves, revealed when leaf is gone) */}
       {seeds.map(
         (s) =>
-          !s.collected && (
+          !s.collected &&
+          s.revealed && (
             <motion.div
               key={s.id}
-              className='absolute w-8 h-8 bg-amber-700 rounded-full border-2 border-amber-900 cursor-pointer shadow-lg z-20'
-              style={{ left: `${s.x}%`, top: `${s.y}%` }}
-              whileHover={{ scale: 1.2, rotate: 10 }}
-              onClick={() => handleCollect(s.id)}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              whileHover={{ scale: 1.2, y: -5 }}
+              className='absolute z-20 cursor-pointer'
+              style={{
+                left: `${s.x}%`,
+                top: `${s.y}%`,
+                marginLeft: '30px',
+                marginTop: '30px',
+              }} // Offset slightly to be under center of leaf area
+              onClick={() => handleCollectSeed(s.id)}
             >
-              <div className='w-full h-full flex items-center justify-center text-xs'>
-                🌰
+              <div className='relative'>
+                <div className='absolute inset-0 bg-yellow-400/30 blur-xl animate-pulse rounded-full'></div>
+                <img
+                  src={seedTexture}
+                  alt='Magic Seed'
+                  className='w-16 h-16 object-contain relative z-10'
+                />
               </div>
             </motion.div>
           )
       )}
 
-      {/* Cursor Follower (Holding Seed) */}
-      {holdingSeed && (
-        <motion.div
-          className='fixed pointer-events-none z-50 text-2xl w-10 h-10 flex items-center justify-center bg-amber-700/80 rounded-full backdrop-blur-sm shadow-xl'
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          style={{ left: 0, top: 0 }} // We use refined cursor logic usually, but for React simple implementation we'll just center it or use mouse tracking.
-          // Simpler approach: Just Show "Holding Seed" near the instruction or center
-        >
-          <div className='fixed top-24 left-1/2 -translate-x-1/2 bg-amber-600 text-white px-4 py-2 rounded-full font-bold shadow-lg animate-bounce'>
-            🌱 Holding Seed! Click Center Circle
-          </div>
-        </motion.div>
-      )}
+      {/* Ambient Fireflies */}
+      <div className='absolute inset-0 pointer-events-none z-10'>
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className='absolute h-1 w-1 bg-yellow-400 rounded-full blur-[1px]'
+            animate={{
+              x: [Math.random() * 100, Math.random() * -100],
+              y: [Math.random() * 100, Math.random() * -100],
+              opacity: [0, 1, 0],
+            }}
+            transition={{
+              duration: Math.random() * 10 + 10,
+              repeat: Infinity,
+              ease: 'linear',
+            }}
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+          />
+        ))}
+      </div>
 
       {/* Memory Modal */}
       <AnimatePresence>
@@ -170,26 +301,31 @@ const JungleMemoryQuest = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className='fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4'
+            className='fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 cursor-default'
             onClick={closeMemory}
           >
             <motion.div
-              initial={{ scale: 0.8, y: 50 }}
-              animate={{ scale: 1, y: 0 }}
-              className='bg-white text-emerald-900 p-8 rounded-2xl max-w-md text-center shadow-2xl border-4 border-emerald-100 relative'
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className='bg-emerald-900/90 text-emerald-50 p-10 rounded-3xl max-w-2xl text-center shadow-[0_0_50px_rgba(16,185,129,0.3)] border border-emerald-500/30 relative overflow-hidden'
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className='text-xl font-bold mb-4 text-emerald-600'>
-                Memory Unlocked ✨
+              {/* Decorative elements */}
+              <div className='absolute top-0 left-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2'></div>
+              <div className='absolute bottom-0 right-0 w-40 h-40 bg-yellow-500/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2'></div>
+
+              <h3 className='text-3xl font-serif text-emerald-300 mb-8 tracking-wide'>
+                A Memory Blooms...
               </h3>
-              <p className='font-serif text-lg leading-relaxed italic'>
+              <p className='font-serif text-xl md:text-2xl leading-relaxed italic text-emerald-100'>
                 "{activeMemory}"
               </p>
               <button
                 onClick={closeMemory}
-                className='mt-6 px-6 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700'
+                className='mt-10 px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-full hover:from-emerald-500 hover:to-green-500 transition-all transform hover:scale-105 shadow-lg'
               >
-                Close & Keep in Heart
+                Cherish & Continue
               </button>
             </motion.div>
           </motion.div>
@@ -197,25 +333,40 @@ const JungleMemoryQuest = () => {
       </AnimatePresence>
 
       {/* Final Heart Reward */}
-      {completedMemories === 3 && !activeMemory && (
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none'
-        >
-          <div className='text-9xl filter drop-shadow-[0_0_30px_rgba(255,20,147,0.8)] animate-pulse'>
-            💖
-          </div>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1 }}
-            className='text-white text-center font-bold text-xl mt-4 bg-black/40 px-4 py-2 rounded-xl backdrop-blur-md'
+      <AnimatePresence>
+        {completedMemories === 3 && !activeMemory && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className='absolute inset-0 z-50 flex flex-col items-center justify-center pointer-events-none'
           >
-            Memories planted forever.
-          </motion.p>
-        </motion.div>
-      )}
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: 'spring', bounce: 0.5, duration: 1.5 }}
+              className='relative'
+            >
+              <div className='absolute inset-0 bg-red-500/20 blur-[100px] animate-pulse'></div>
+              <img
+                src={heartTexture}
+                alt='Quest Complete Heart'
+                className='w-64 h-64 object-contain drop-shadow-[0_0_30px_rgba(255,50,50,0.6)] animate-pulse-slow'
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 }}
+              className='mt-8 text-center'
+            >
+              <h1 className='text-5xl md:text-7xl font-bold bg-gradient-to-r from-pink-400 via-red-300 to-red-500 bg-clip-text text-transparent drop-shadow-sm font-serif'>
+                Love Grows
+              </h1>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
