@@ -1,190 +1,208 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useSpring,
+} from 'framer-motion'
 import { useStory, SCENES } from '../../context/StoryContext'
 
-const TimeTravelGame = () => {
-  const { setCurrentScene } = useStory()
-  const [month, setMonth] = useState(12)
-  const [meteors, setMeteors] = useState([])
-  const [lasers, setLasers] = useState([])
-  const [gameWon, setGameWon] = useState(false)
-  const gameRef = useRef(null)
-
-  // Month countdown (Game Timer)
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setMonth((prev) => {
-        if (prev <= 6) {
-          clearInterval(timer)
-          setGameWon(true)
-          return 6
-        }
-        return prev - 1
-      })
-    }, 4000) // 4 seconds per month -> ~24-30s game duration
-
-    return () => clearInterval(timer)
-  }, [])
-
-  // Meteor Spawner
-  useEffect(() => {
-    if (gameWon) return
-    const spawner = setInterval(() => {
-      const id = Date.now()
-      const x = Math.random() * 80 + 10 // 10% to 90% width
-      setMeteors((prev) => [...prev, { id, x, y: -10 }])
-    }, 800)
-
-    return () => clearInterval(spawner)
-  }, [gameWon])
-
-  // Game Loop (Move Meteors)
-  useEffect(() => {
-    if (gameWon) return
-    const loop = setInterval(() => {
-      setMeteors(
-        (prev) =>
-          prev
-            .map((m) => ({ ...m, y: m.y + 2 })) // Speed
-            .filter((m) => m.y < 120) // Remove if off screen
-      )
-    }, 50)
-    return () => clearInterval(loop)
-  }, [gameWon])
-
-  // Win Sequence
-  useEffect(() => {
-    if (gameWon) {
-      setTimeout(() => {
-        setCurrentScene(SCENES.FIXED_TIMELINE_ROOM)
-      }, 3000)
-    }
-  }, [gameWon, setCurrentScene])
-
-  const handleShoot = (e) => {
-    if (gameWon) return
-    const rect = gameRef.current.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-
-    // Add laser visual
-    const laserId = Date.now()
-    setLasers((prev) => [...prev, { id: laserId, x, y }])
-    setTimeout(() => {
-      setLasers((prev) => prev.filter((l) => l.id !== laserId))
-    }, 200)
-
-    // Hit detection
-    setMeteors((prev) =>
-      prev.filter((m) => {
-        const mx = (m.x / 100) * rect.width
-        const my = (m.y / 100) * rect.height
-        const dist = Math.hypot(mx - x, my - y)
-        return dist > 50 // Hit radius
-      })
-    )
+/* ===================== ROCKET DIALOG ===================== */
+const RocketDialog = ({ month }) => {
+  const messages = {
+    12: '🚀 Just rewatched Interstellar… got inspired! I love space & time-travel movies, and I wanted to make something special for you!',
+    11: 'Reversing time from month 12… physics, please be gentle. I hope this journey brings a smile. 😊',
+    10: 'Theoretically, going back in time is possible near a black hole… but I’d do it just to relive our moments together. 💖',
+    9: 'Imagine if we had tech to change the past… I’d spend it making you laugh even more!',
+    8: 'I wish I could go back and enjoy every moment we shared, over and over. 😔💞',
+    7: 'Love you so much, sister 💐 You make every timeline brighter.',
+    6: '✅ Month 6 reached! Timeline stabilized.',
   }
 
   return (
-    <div
-      ref={gameRef}
-      className='relative h-screen w-full overflow-hidden bg-black cursor-crosshair'
-      onClick={handleShoot}
+    <motion.div
+      key={month}
+      initial={{ opacity: 0, scale: 0.85, y: 10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+      className='absolute -top-40 left-1/2 -translate-x-1/2 z-50'
     >
-      {/* Space Tunnel Background */}
-      <div className='absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900 via-gray-900 to-black animate-pulse'></div>
-
-      {/* Stars speed effect */}
-      <div className='absolute inset-0'>
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className='absolute bg-white rounded-full opacity-0'
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: Math.random() * 2 + 1 + 'px',
-              height: Math.random() * 20 + 10 + 'px',
-            }}
-            animate={{ opacity: [0, 1, 0], top: ['0%', '100%'] }}
-            transition={{
-              duration: Math.random() * 0.5 + 0.2,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
-          />
-        ))}
+      <div className='relative bg-white text-black text-xs font-mono px-4 py-2 rounded-xl shadow-xl w-[160px] text-center'>
+        {messages[month] || '⏳ Recalculating spacetime…'}
+        <div className='absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-white rotate-45' />
       </div>
+    </motion.div>
+  )
+}
 
-      {/* Month Counter */}
-      <div className='absolute top-10 right-10 z-20 flex flex-col items-end'>
-        <h2
-          className='text-6xl font-black text-white tracking-widest outline-text'
-          style={{ textShadow: '0 0 20px blue' }}
-        >
-          {month < 10 ? `0${month}` : month}
-        </h2>
-        <p className='text-cyan-400 font-mono text-sm uppercase'>
-          Timewarp Active
-        </p>
+/* ===================== ROCKET ===================== */
+const Rocket = ({ xMotion, isMobile, month }) => (
+  <motion.div
+    style={{ x: xMotion }}
+    drag={isMobile ? 'x' : false}
+    dragConstraints={{ left: -240, right: 240 }}
+    transition={{ type: 'spring', stiffness: 300, damping: 18 }}
+    className='absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[20%] z-40'
+  >
+    <div className='relative flex flex-col items-center'>
+      {/* Rocket Dialog */}
+      <RocketDialog month={month} />
+
+      {/* Flame */}
+      <motion.div
+        animate={{ scaleY: [1, 1.7, 1], opacity: [0.6, 1, 0.6] }}
+        transition={{ repeat: Infinity, duration: 0.14 }}
+        className='absolute -bottom-14 w-6 h-20 bg-gradient-to-t from-transparent via-cyan-400 to-white blur-lg rounded-full'
+      />
+
+      {/* Body */}
+      <div className='w-14 h-24 rounded-t-full bg-gradient-to-b from-slate-100 to-slate-400 border-x border-white/30 shadow-[0_0_30px_rgba(0,255,255,0.3)] relative'>
+        <div className='absolute top-6 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-slate-900 border border-cyan-400' />
+        <div className='absolute -left-4 bottom-1 w-5 h-10 bg-slate-500 rounded-l-xl' />
+        <div className='absolute -right-4 bottom-1 w-5 h-10 bg-slate-500 rounded-r-xl' />
       </div>
+    </div>
+  </motion.div>
+)
 
-      {/* Meteors */}
-      <AnimatePresence>
-        {meteors.map((m) => (
-          <motion.div
-            key={m.id}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1, top: `${m.y}%`, left: `${m.x}%` }}
-            exit={{ scale: 1.5, opacity: 0, backgroundColor: 'orange' }}
-            className='absolute h-12 w-12 rounded-full z-10 shadow-[0_0_15px_rgba(255,0,0,0.5)] bg-gradient-to-br from-gray-700 to-black border border-red-900 flex items-center justify-center'
-          >
-            🔥
-          </motion.div>
-        ))}
-      </AnimatePresence>
+/* ===================== MAIN COMPONENT ===================== */
+const TimeTravelGame = () => {
+  const { setCurrentScene } = useStory()
+  const [month, setMonth] = useState(12)
+  const [gameStarted, setGameStarted] = useState(false)
+  const [showLevelLine, setShowLevelLine] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
-      {/* Lasers */}
-      {lasers.map((l) => (
-        <div
-          key={l.id}
-          className='absolute bottom-0 w-1 bg-cyan-400 shadow-[0_0_10px_cyan]'
-          style={{
-            left: l.x,
-            height: '100%',
-            transformOrigin: 'bottom',
-            transform: `rotate(${
-              Math.atan2(
-                l.y - window.innerHeight,
-                l.x - window.innerWidth / 2
-              ) *
-                (180 / Math.PI) +
-              90
-            }deg)`, // Simplified straight up for now or just generic blast
+  const rocketRef = useRef()
+  const xMotion = useMotionValue(0)
+  const smoothX = useSpring(xMotion, { stiffness: 120, damping: 22 })
+
+  /* ===================== INPUT HANDLING ===================== */
+  useEffect(() => {
+    setIsMobile('ontouchstart' in window)
+    const handleKeyDown = (e) => {
+      const step = 60
+      const x = xMotion.get()
+      if (e.key === 'ArrowLeft') xMotion.set(Math.max(x - step, -240))
+      if (e.key === 'ArrowRight') xMotion.set(Math.min(x + step, 240))
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [xMotion])
+
+  /* ===================== MONTH FLOW ===================== */
+  useEffect(() => {
+    if (!gameStarted) return
+    if (month <= 6) {
+      setTimeout(() => setCurrentScene(SCENES.FIXED_TIMELINE_ROOM), 4000)
+      return
+    }
+    const timer = setTimeout(() => {
+      setShowLevelLine(true)
+      setMonth((m) => m - 1)
+      setTimeout(() => setShowLevelLine(false), 1800)
+    }, 5000)
+    return () => clearTimeout(timer)
+  }, [month, gameStarted, setCurrentScene])
+
+  /* ===================== UI ===================== */
+  return (
+    <div className='relative h-screen w-full overflow-hidden bg-[#020617] select-none'>
+      {/* Background */}
+      <div className='absolute inset-0 bg-[radial-gradient(circle_at_center,#0f172a_0%,#020617_70%)]' />
+
+      {/* Stars (moving down) */}
+      {[...Array(80)].map((_, i) => (
+        <motion.div
+          key={i}
+          className='absolute w-[1px] h-[1px] bg-white rounded-full'
+          initial={{ y: '-10%', opacity: Math.random() * 0.6 + 0.2 }}
+          animate={{ y: '110%' }}
+          transition={{
+            duration: Math.random() * 6 + 4,
+            repeat: Infinity,
+            ease: 'linear',
+            delay: Math.random() * 5,
           }}
-        >
-          {/* Actually just a burst at click location is better for "clicking meteors" */}
-          <div className='absolute top-0 left-0 w-full h-full bg-cyan-500 opacity-50 blur-md'></div>
-        </div>
-      ))}
-      {lasers.map((l) => (
-        <div
-          key={`burst-${l.id}`}
-          className='absolute w-20 h-20 bg-cyan-500 rounded-full blur-xl opacity-80 pointer-events-none transform -translate-x-1/2 -translate-y-1/2'
-          style={{ left: l.x, top: l.y }}
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+          }}
         />
       ))}
 
-      {/* Win Flash */}
-      {gameWon && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className='absolute inset-0 bg-white z-50 flex items-center justify-center'
-        >
-          <h1 className='text-6xl font-black text-black'>JUNE REACHED</h1>
-        </motion.div>
-      )}
+      {/* HUD */}
+      <div className='absolute top-8 left-1/2 -translate-x-1/2 text-center z-50'>
+        <p className='text-cyan-500 font-mono text-xs tracking-[0.4em] uppercase'>
+          Temporal Rewind
+        </p>
+        <h2 className='text-6xl font-black text-white italic'>
+          {month < 10 ? `0${month}` : month}
+          <span className='text-cyan-400'>.00</span>
+        </h2>
+      </div>
+
+      {/* Science Note */}
+      <div className='absolute bottom-6 right-6 max-w-xs text-right text-[10px] text-slate-400 font-mono leading-relaxed opacity-80'>
+        <p>
+          According to relativity, time can slow down — but reversing it
+          violates entropy.
+        </p>
+        <p className='text-cyan-400 mt-1'>
+          This rocket is doing something the universe dislikes.
+        </p>
+      </div>
+
+      {/* Info Popup */}
+      <AnimatePresence>
+        {!gameStarted && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className='absolute inset-0 z-[200] bg-black/80 backdrop-blur-lg flex items-center justify-center px-5'
+          >
+            <div className='max-w-md bg-slate-900 p-8 rounded-3xl border border-white/10 text-center shadow-2xl'>
+              <div className='text-4xl mb-4'>🚀</div>
+              <h3 className='text-3xl font-bold text-white mb-3'>
+                Time Rewind Protocol
+              </h3>
+              <p className='text-slate-400 mb-6'>
+                We are traveling back from <b>Month 12</b> to <b>Month 06</b>.
+                <br />
+                Physics may complain.
+                <br />
+                and also the text may be so fast so read fast, ok? 😂
+              </p>
+              <button
+                onClick={() => setGameStarted(true)}
+                className='w-full py-4 bg-cyan-500 hover:bg-cyan-400 text-black font-black rounded-xl transition-all hover:scale-105'
+              >
+                INITIATE
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Level Line */}
+      <AnimatePresence>
+        {showLevelLine && (
+          <motion.div
+            initial={{ top: '-20%' }}
+            animate={{ top: '120%' }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.8, ease: 'linear' }}
+            className='absolute left-0 w-full h-[20vh] z-40 bg-gradient-to-b from-transparent via-cyan-500/20 to-transparent border-y border-cyan-400/40 flex items-center justify-center'
+          ></motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Rocket */}
+      <div ref={rocketRef} className='relative w-full h-full'>
+        <Rocket xMotion={smoothX} isMobile={isMobile} month={month} />
+      </div>
     </div>
   )
 }
