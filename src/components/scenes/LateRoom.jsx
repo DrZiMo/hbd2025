@@ -31,7 +31,28 @@ const Fly = ({ delay = 0 }) => (
   />
 )
 
-// 2. Tattered Curtain
+// 2. Dust Mote
+const DustMote = ({ x, y, duration, delay }) => {
+  return (
+    <motion.div
+      className='absolute w-1 h-1 bg-white/20 rounded-full blur-[1px] pointer-events-none'
+      initial={{ x: `${x}%`, y: `${y}%`, opacity: 0 }}
+      animate={{
+        y: [`${y}%`, `${y - 10}%`],
+        x: [`${x}%`, `${x + 5}%`],
+        opacity: [0, 0.4, 0],
+      }}
+      transition={{
+        duration: duration,
+        repeat: Infinity,
+        delay: delay,
+        ease: 'linear',
+      }}
+    />
+  )
+}
+
+// 3. Tattered Curtain
 const TatteredCurtain = ({ side }) => {
   const isLeft = side === 'left'
   return (
@@ -61,6 +82,18 @@ const LateRoom = () => {
   const { setCurrentScene } = useStory()
   const [showCharacter, setShowCharacter] = useState(false)
   const [dialogueStep, setDialogueStep] = useState(0)
+  const [motes, setMotes] = useState([])
+
+  useEffect(() => {
+    setMotes(
+      [...Array(20)].map(() => ({
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        duration: 15 + Math.random() * 20,
+        delay: Math.random() * 10,
+      }))
+    )
+  }, [])
 
   // Sequence Logic
   useEffect(() => {
@@ -91,18 +124,25 @@ const LateRoom = () => {
       {/* 2. Moonlight Beam (behind the window) */}
       <div className='absolute top-[-10%] right-[5%] w-[400px] h-[150%] bg-blue-100/5 rotate-25 blur-3xl transform origin-top pointer-events-none z-10'></div>
 
+      {/* 3. Dust Layer (Particles floating in the air) */}
+      <div className='absolute inset-0 z-30 pointer-events-none'>
+        {motes.map((mote, i) => (
+          <DustMote key={i} {...mote} />
+        ))}
+      </div>
+
       {/* --- BACKGROUND ELEMENTS (THE WALL) --- */}
 
       {/* Spider Webs */}
       <img
         src={SPIDERWEB_1_IMG}
         alt='spider web 1'
-        className='absolute scale-100 opacity-60 z-10'
+        className='absolute scale-100 opacity-30 z-100 md:z-10'
       />
       <img
         src={SPIDERWEB_2_IMG}
         alt='spider web 2'
-        className='absolute -right-60 -top-20 scale-50 rotate-90 opacity-30 z-100'
+        className='absolute -right-30 md:-right-60 -top-20 scale-50 rotate-90 opacity-30 z-100'
       />
 
       {/* The Broken Window */}
@@ -198,7 +238,7 @@ const LateRoom = () => {
        */}
 
       {/* The Skeleton in the Corner */}
-      <div className='absolute bottom-24 left-10 w-32 opacity-70 contrast-125 z-20'>
+      <div className='absolute bottom-44 md:bottom-24 -left-10 md:left-10 w-32 opacity-70 contrast-125 z-20'>
         <div className='relative flex flex-col items-center'>
           <div className='relative'>
             <img
@@ -218,7 +258,7 @@ const LateRoom = () => {
       {/* The Center Table with Rotten Cake */}
       <div className='absolute bottom-[-20px] left-1/2 -translate-x-1/2 flex flex-col items-center z-20'>
         <div className='relative mb-[-10px]'>
-          <div className='relative -top-18'>
+          <div className='relative -top-36 md:-top-18'>
             <div className='absolute -top-10 left-10'>
               <Fly delay={0} />
             </div>
@@ -233,8 +273,8 @@ const LateRoom = () => {
             </div>
           </div>
 
-          <div className='relative -top-14'>
-            <div className='flex flex-col justify-center items-center relative '>
+          <div className='relative -top-36 md:-top-14'>
+            <div className='flex flex-col justify-center items-center relative'>
               <img
                 src={CAKE_IMG}
                 alt='Rotten Cake'
