@@ -1,171 +1,239 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStory, SCENES } from '../../context/StoryContext'
+import BG_IMG from '/pyramid background.jpg'
+import STONE_TEXTURE from '/stone-texture.jpeg'
 
+// ===============================
+// CHAMBERS
+// ===============================
 const CHAMBERS = [
   {
-    id: 'REGRET',
     title: 'Chamber of Regret',
+    intro: 'Every journey begins with acknowledging mistakes.',
     message: 'I was late... and that regret stayed with me.',
-    bg: 'bg-indigo-900',
   },
   {
-    id: 'GRATITUDE',
     title: 'Chamber of Gratitude',
+    intro: 'Gratitude is the key that opens heavy doors.',
     message: 'Thank you for your patience.',
-    bg: 'bg-purple-900',
   },
   {
-    id: 'PROMISE',
     title: 'Chamber of Promise',
+    intro: 'A promise is not perfection — it is effort.',
     message: 'Not perfect — but present, learning, and trying.',
-    bg: 'bg-blue-900',
   },
   {
-    id: 'HEART',
     title: 'Chamber of Heart',
+    intro: 'This is the final chamber. The truth lives here.',
     message:
       'I was late.\nBut my heart never missed the moment.\n\nHappy Birthday.\nThank you for waiting for me, little sister.',
-    bg: 'bg-rose-900',
   },
 ]
 
+// ===============================
+// PARTICLES
+// ===============================
+const Particles = () => (
+  <div className='absolute inset-0 pointer-events-none'>
+    {[...Array(30)].map((_, i) => (
+      <motion.span
+        key={i}
+        className='absolute w-1 h-1 bg-white/20 rounded-full'
+        initial={{
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+        }}
+        animate={{
+          y: [null, Math.random() * window.innerHeight],
+          opacity: [0, 0.6, 0],
+        }}
+        transition={{
+          duration: 8 + Math.random() * 5,
+          repeat: Infinity,
+        }}
+      />
+    ))}
+  </div>
+)
+
+// ===============================
+// STONE TILE (NO SHADOW)
+// ===============================
+const StoneTile = ({ num, onClick, disabled }) => (
+  <motion.button
+    onClick={onClick}
+    disabled={disabled}
+    whileTap={{ scale: 0.95 }}
+    className={`
+      w-20 h-20 rounded-md
+      border border-[#3b2a17]
+      text-3xl font-serif font-bold
+      text-[#2b1c0d]
+      flex items-center justify-center
+      ${disabled ? 'opacity-40' : ''}
+    `}
+    style={{
+      backgroundColor: '#c29044', // base stone color
+      backgroundImage: `
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,0.08),
+          rgba(0,0,0,0.18)
+        ),
+        url(${STONE_TEXTURE})
+      `,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundBlendMode: 'multiply',
+    }}
+  >
+    {num}
+  </motion.button>
+)
+
+// ===============================
+// MODAL
+// ===============================
+const Modal = ({ title, text, onClose }) => (
+  <motion.div
+    className='fixed inset-0 z-50 flex items-center justify-center bg-black/80'
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+  >
+    <motion.div
+      initial={{ scale: 0.8 }}
+      animate={{ scale: 1 }}
+      className='bg-linear-to-br from-[#f5d58c] to-[#b89445] p-8 mx-4 rounded-xl text-center max-w-md text-orange-950'
+    >
+      <h2 className='text-3xl font-serif mb-4'>{title}</h2>
+      <p className='mb-6'>{text}</p>
+      <button
+        onClick={onClose}
+        className='px-6 py-2 bg-black text-white rounded-full'
+      >
+        Continue
+      </button>
+    </motion.div>
+  </motion.div>
+)
+
+// ===============================
+// MAIN COMPONENT
+// ===============================
 const PyramidOfEmotions = () => {
   const { setCurrentScene } = useStory()
-  const [level, setLevel] = useState(0) // 0-3
-  const [sequence, setSequence] = useState([]) // Current clicks in puzzle
-  const [scramble, setScramble] = useState([]) // Random numbers position
-  const [showMessage, setShowMessage] = useState(false)
 
-  // Initialize random grid for new level
+  const [level, setLevel] = useState(0)
+  const [sequence, setSequence] = useState([])
+  const [scramble, setScramble] = useState([])
+  const [solved, setSolved] = useState(false)
+  const [showIntro, setShowIntro] = useState(true)
+  const [showChamberPopup, setShowChamberPopup] = useState(false)
+
+  const chamber = CHAMBERS[level]
+
   useEffect(() => {
-    if (level < 3) {
-      setSequence([])
-      setShowMessage(false)
-      setScramble(
-        [...Array(9).keys()].map((i) => i + 1).sort(() => Math.random() - 0.5)
-      )
-    } else {
-      // Final level logic (Heart)
-      setShowMessage(true)
-    }
+    setSequence([])
+    setSolved(false)
+    setScramble(
+      [...Array(9).keys()].map((i) => i + 1).sort(() => Math.random() - 0.5)
+    )
+    setShowChamberPopup(true)
   }, [level])
 
-  const handleNumberClick = (num) => {
-    if (showMessage) return
-
-    const nextExpected = sequence.length + 1
-    if (num === nextExpected) {
-      const newSeq = [...sequence, num]
-      setSequence(newSeq)
-      if (newSeq.length === 9) {
-        // Level Complete
-        setShowMessage(true)
-        setTimeout(() => {
-          // Wait a bit before allowing next level
-        }, 1000)
-      }
+  const handleClick = (num) => {
+    const next = sequence.length + 1
+    if (num === next) {
+      const s = [...sequence, num]
+      setSequence(s)
+      if (s.length === 9) setSolved(true)
     } else {
-      // Mistake - Shake/Reset
       setSequence([])
-      // Maybe add visual feedback like red flash
+      navigator.vibrate?.(120)
     }
   }
-
-  const handleNextLevel = () => {
-    if (level < 3) {
-      setLevel(level + 1)
-    } else {
-      setCurrentScene(SCENES.MAIN_MESSAGE)
-    }
-  }
-
-  const currentChamber = CHAMBERS[level]
 
   return (
-    <div
-      className={`relative h-screen w-full flex flex-col items-center justify-center text-center p-4 transition-colors duration-1000 ${currentChamber.bg}`}
-    >
-      <motion.h1
-        key={currentChamber.title}
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className='text-4xl text-white font-serif mb-8'
-      >
-        {currentChamber.title}
-      </motion.h1>
+    <div className='relative h-screen w-full flex items-center justify-center overflow-hidden text-white'>
+      <img
+        src={BG_IMG}
+        className='absolute inset-0 w-full h-full object-cover opacity-30'
+      />
+      <div className='absolute inset-0 bg-black/70' />
+      <Particles />
 
-      <div className='relative'>
-        {level < 3 ? (
-          /* Puzzle Grid */
-          !showMessage ? (
-            <div className='grid grid-cols-3 gap-4 w-72 h-72'>
-              {scramble.map((num) => (
-                <motion.button
-                  key={num}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  disabled={sequence.includes(num)}
-                  onClick={() => handleNumberClick(num)}
-                  className={`
-                      rounded-lg text-2xl font-bold transition-all duration-300
-                      ${
-                        sequence.includes(num)
-                          ? 'bg-green-500 text-white opacity-50'
-                          : 'bg-white/20 text-white hover:bg-white/40'
-                      }
-                    `}
-                >
-                  {num}
-                </motion.button>
-              ))}
-            </div>
-          ) : (
-            /* Success Message for Chamber */
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className='bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/30 max-w-md'
-            >
-              <p className='text-xl font-light leading-relaxed mb-6'>
-                {currentChamber.message}
-              </p>
-              <button
-                onClick={handleNextLevel}
-                className='px-6 py-2 bg-white text-gray-900 rounded-full font-bold hover:bg-gray-200'
-              >
-                Ascend →
-              </button>
-            </motion.div>
-          )
-        ) : (
-          /* Final Heart Chamber */
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className='text-center'
-          >
-            <div className='text-rose-400 text-6xl mb-6 font-serif whitespace-pre-line leading-relaxed'>
-              {currentChamber.message}
-            </div>
-
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 3 }}
-              onClick={() => setCurrentScene(SCENES.MAIN_MESSAGE)}
-              className='mt-12 px-8 py-3 bg-rose-600 text-white rounded-full font-bold shadow-lg hover:bg-rose-500'
-            >
-              Open Final Gift 🎁
-            </motion.button>
-          </motion.div>
+      <AnimatePresence>
+        {showIntro && (
+          <Modal
+            title='Pyramid of Emotions'
+            text='Solve each chamber to ascend.'
+            onClose={() => setShowIntro(false)}
+          />
         )}
-      </div>
+      </AnimatePresence>
 
-      {level < 3 && !showMessage && (
-        <p className='absolute bottom-10 text-white/50 text-sm'>
-          Tap numbers 1 to 9 in order.
-        </p>
+      <AnimatePresence>
+        {!showIntro && showChamberPopup && (
+          <Modal
+            title={chamber.title}
+            text={chamber.intro}
+            onClose={() => setShowChamberPopup(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {!showIntro && !showChamberPopup && (
+        <div className='relative z-20 text-center'>
+          <h1 className='text-4xl font-serif mb-6 text-amber-200'>
+            {chamber.title}
+          </h1>
+
+          <div className='relative w-72 h-72 mx-auto'>
+            <AnimatePresence>
+              {solved && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className='absolute inset-0 bg-gradient-to-br from-[#f5d58c] to-[#b89445] text-black rounded-xl p-6 flex items-center justify-center z-0'
+                >
+                  <p className='whitespace-pre-line text-xl font-serif'>
+                    {chamber.message}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <motion.div
+              className='grid grid-cols-3 gap-3 absolute inset-0 z-10'
+              animate={solved ? { opacity: 0 } : {}}
+              style={{ pointerEvents: solved ? 'none' : 'auto' }} // 🔥 FIX
+            >
+              {scramble.map((num) => (
+                <StoneTile
+                  key={num}
+                  num={num}
+                  disabled={sequence.includes(num)}
+                  onClick={() => handleClick(num)}
+                />
+              ))}
+            </motion.div>
+          </div>
+
+          {solved && (
+            <button
+              onClick={() =>
+                level < 3
+                  ? setLevel(level + 1)
+                  : setCurrentScene(SCENES.MAIN_MESSAGE)
+              }
+              className='mt-10 px-8 py-3 bg-amber-400 text-black rounded-full font-bold relative z-30'
+            >
+              Continue →
+            </button>
+          )}
+        </div>
       )}
     </div>
   )
