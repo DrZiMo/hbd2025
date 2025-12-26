@@ -297,12 +297,12 @@ const JungleMemoryQuest = () => {
     setSeeds(selected)
   }, [])
 
-  // Handle leaf click (from Code B)
+  // Handle leaf click
   const handleLeafClick = (id) => {
     setLeaves((prev) => prev.filter((leaf) => leaf.id !== id))
   }
 
-  // Handle seed click (from Code A)
+  // Handle seed click
   const handleSeedClick = (id) => {
     if (inventory !== null) return
     setSeeds((prev) =>
@@ -311,7 +311,7 @@ const JungleMemoryQuest = () => {
     setInventory(id)
   }
 
-  // Handle soil click (from Code A)
+  // Handle soil click
   const handleSoilClick = () => {
     if (inventory === null) return
     setBloomedFlowers((prev) => [...prev, inventory])
@@ -319,14 +319,14 @@ const JungleMemoryQuest = () => {
     setPlantedCount((prev) => prev + 1)
   }
 
-  // Handle flower click (from Code A)
+  // Handle flower click
   const handleFlowerClick = (index) => {
     if (!activeMemory) {
       setActiveMemory(MEMORIES[index])
     }
   }
 
-  // Store memory (from Code A with improved logic)
+  // Store memory
   const storeMemory = () => {
     setStoredMemories((prev) => [...prev, activeMemory])
     setActiveMemory(null)
@@ -354,7 +354,6 @@ const JungleMemoryQuest = () => {
         />
       </div>
 
-      {/* HOW TO PLAY (from Code A) */}
       <AnimatePresence>
         {showHowToPlay && (
           <motion.div
