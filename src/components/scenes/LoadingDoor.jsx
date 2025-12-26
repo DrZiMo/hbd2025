@@ -85,7 +85,7 @@ const LoadingDoor = () => {
             className='z-10 mb-[3%] flex h-full flex-col items-center justify-end gap-10'
           >
             {/* LOADING UI (Moved Above Door) */}
-            <div className='flex relative -top-36 md:-top-18 w-72 flex-col items-center gap-3 rounded-xl bg-amber-50/90 p-4 shadow-lg backdrop-blur-sm'>
+            <div className='flex relative -top-36 md:-top-18 lg:-top-12 w-72 flex-col items-center gap-3 rounded-xl bg-amber-50/90 p-4 shadow-lg backdrop-blur-sm'>
               <p className='font-mono text-sm font-bold text-amber-900'>
                 {isLoaded
                   ? '✨ ESTATE READY. ENTER.'
@@ -111,7 +111,7 @@ const LoadingDoor = () => {
               <div
                 onClick={handleEnter}
                 className={`
-                  relative -top-38 md:-top-24 h-80 w-48 cursor-pointer transition-all duration-1000
+                  relative -top-38 md:-top-24 lg:-top-18 h-80 w-48 cursor-pointer transition-all duration-1000
                   ${
                     isLoaded
                       ? 'filter drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)] hover:scale-105'
