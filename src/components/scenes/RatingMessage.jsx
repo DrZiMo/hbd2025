@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
+import emailjs from '@emailjs/browser'
 import { useStory, SCENES } from '../../context/StoryContext'
 
 const SCENE_OPTIONS = [
@@ -15,13 +16,36 @@ const RatingMessage = () => {
   const { setCurrentScene, setUserData } = useStory()
   const [favorite, setFavorite] = useState('')
   const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = (e) => {
     e.preventDefault()
     setUserData((prev) => ({ ...prev, rating: favorite, message }))
+    setLoading(true)
 
-    // Smooth exit
-    setCurrentScene(SCENES.MAKING_OF)
+    // Keys from .env
+    const serviceID = import.meta.env.VITE_EMAILJS_SERVICE_ID
+    const templateID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+
+    // We combine the data into the 'wish' parameter to reuse the same template
+    const templateParams = {
+      wish: `Favorite Part: ${favorite}\n\nMessage: ${message}`,
+    }
+
+    emailjs.send(serviceID, templateID, templateParams, publicKey).then(
+      (response) => {
+        console.log('SUCCESS!', response.status, response.text)
+        setLoading(false)
+        setCurrentScene(SCENES.MAKING_OF)
+      },
+      (err) => {
+        console.log('FAILED...', err)
+        setLoading(false)
+        // Navigate anyway so the user doesn't get stuck
+        setCurrentScene(SCENES.MAKING_OF)
+      }
+    )
   }
 
   return (
@@ -77,14 +101,14 @@ const RatingMessage = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type='submit'
-            disabled={!favorite}
+            disabled={!favorite || loading}
             className={`py-4 rounded-xl font-bold text-lg shadow-lg ${
               favorite
                 ? 'bg-white text-gray-900 hover:bg-gray-100 cursor-pointer'
                 : 'bg-gray-700 text-gray-500 cursor-not-allowed'
             }`}
           >
-            Finish Journey →
+            {loading ? 'Sending...' : 'Finish Journey →'}
           </motion.button>
         </form>
       </motion.div>

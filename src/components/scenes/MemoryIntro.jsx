@@ -112,7 +112,7 @@ const MemoryIntro = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleNext}
-            className='absolute bottom-10 right-10 px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-full shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] transition-all z-[60] flex items-center gap-2 group cursor-pointer pointer-events-auto'
+            className='absolute bottom-10 right-10 px-8 py-3 bg-linear-to-r from-purple-500 to-pink-500 text-white font-bold rounded-full shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] transition-all z-[60] flex items-center gap-2 group cursor-pointer pointer-events-auto'
           >
             Ready{' '}
             <span className='group-hover:translate-x-1 transition-transform'>

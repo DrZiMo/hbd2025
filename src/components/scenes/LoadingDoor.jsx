@@ -77,14 +77,63 @@ const LoadingDoor = () => {
   const [isLoaded, setIsLoaded] = useState(false)
   const [isOpening, setIsOpening] = useState(false)
 
+  // List of all assets to preload
+  const ASSETS = [
+    '/pyramid background.jpg',
+    '/stone-texture.jpeg',
+    '/stickers/hands_in_pocket-removebg-preview.png',
+    '/stickers/worrying-removebg-preview.png',
+    '/stickers/talking_1-removebg-preview.png',
+    '/stickers/greeting-removebg-preview.png',
+    '/stickers/talking_2-removebg-preview.png',
+    '/cake.png',
+    '/table.png',
+    '/skeleton.png',
+    '/birthday hat.png',
+    '/spider web1.png',
+    '/spider web2.png',
+    '/stickers/saying_boo-removebg-preview.png',
+    '/stickers/hands_down-removebg-preview.png',
+    '/stickers/looking_side-removebg-preview.png',
+    '/stickers/touching_head-removebg-preview.png',
+    '/stickers/two_hands-removebg-preview.png',
+    'https://www.transparenttextures.com/patterns/stardust.png',
+  ]
+
   useEffect(() => {
-    if (progress < 100) {
-      const timer = setTimeout(() => setProgress((prev) => prev + 1), 40)
-      return () => clearTimeout(timer)
-    } else {
-      setIsLoaded(true)
+    let loadedCount = 0
+    const total = ASSETS.length
+
+    const loadAsset = (src) => {
+      return new Promise((resolve) => {
+        const img = new Image()
+        img.src = src
+        img.onload = () => resolve(src)
+        img.onerror = () => {
+          console.warn(`Failed to load asset: ${src}`)
+          resolve(src) // Continue even if one fails
+        }
+      })
     }
-  }, [progress])
+
+    const loadAll = async () => {
+      // Create an array of promises for each asset
+      const promises = ASSETS.map(async (src) => {
+        await loadAsset(src)
+        loadedCount++
+        setProgress(Math.round((loadedCount / total) * 100))
+      })
+
+      await Promise.all(promises)
+
+      // Small delay to ensure 100% is seen briefly
+      setTimeout(() => {
+        setIsLoaded(true)
+      }, 500)
+    }
+
+    loadAll()
+  }, [])
 
   const handleEnter = () => {
     if (!isLoaded) return

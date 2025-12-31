@@ -4,9 +4,9 @@ import { useStory, SCENES } from '../../context/StoryContext'
 
 // --- CONSTANTS ---
 const MEMORIES = [
-  'Remember when we stayed up all night just talking? That was the moment I knew you were my best friend.',
-  'That time you shared your lunch when I forgot mine... smallest gesture, biggest heart.',
-  'Watching you grow from a little kid into this amazing person has been my greatest privilege.',
+  'Remember when we stayed up all night just talking on whatsapp and me and sakariya was in you home and we are just few meters apart. 😂',
+  'Remember when you suprised us you and habo nuura and come to our home long time ago. I was so happy that time.',
+  'Remember when I put floor on you face after I made you laugh. 🤣',
 ]
 
 const FINAL_MESSAGE = {
