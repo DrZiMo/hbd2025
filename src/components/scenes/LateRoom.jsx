@@ -109,7 +109,7 @@ const SEQUENCE = [
   {
     id: 'late',
     img: LOOKING_SIDE_IMG,
-    text: 'Oh oh! i think am so late',
+    text: 'Oh oh! I think am so late',
     duration: 3000,
   },
   {
@@ -121,13 +121,13 @@ const SEQUENCE = [
   {
     id: 'idea',
     img: TOUCHING_HEAD_IMG,
-    text: 'but i got an idea!',
+    text: 'But I got an idea!',
     duration: 2500,
   },
   {
     id: 'click',
     img: HANDS_IN_POCKET_IMG,
-    text: 'click the explore idea button and see what it is',
+    text: 'Click the explore idea button and see what it is',
     duration: null, // Stays until clicked
   },
 ]

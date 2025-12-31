@@ -5,7 +5,11 @@ import { useStory, SCENES } from '../../context/StoryContext'
 // Images (Keeping the Cake and Table, dropping the horror ones)
 import CAKE_IMG from '/cake.png'
 import TABLE_IMG from '/table.png'
-// We might not need the others, but let's keep imports clean.
+
+// Character Images
+import TWO_HANDS_IMG from '/stickers/two_hands-removebg-preview.png'
+import TALKING_2_IMG from '/stickers/talking_2-removebg-preview.png'
+import HANDS_IN_POCKET_IMG from '/stickers/hands_in_pocket-removebg-preview.png'
 
 // --- SUB-COMPONENTS ---
 
@@ -59,10 +63,31 @@ const NiceCurtain = ({ side }) => {
   )
 }
 
+// Sequence Data
+const SEQUENCE = [
+  {
+    id: 'intro',
+    img: TWO_HANDS_IMG,
+    text: "see ? I wasn't late",
+    duration: 3000,
+  },
+  {
+    id: 'travel',
+    img: TALKING_2_IMG,
+    text: 'time traveling is so intresting',
+    duration: 3000,
+  },
+  {
+    id: 'action',
+    img: HANDS_IN_POCKET_IMG,
+    text: 'click the button below to continue',
+    duration: null, // Stays until clicked
+  },
+]
+
 const FixedTimelineRoom = () => {
   const { setCurrentScene } = useStory()
-  const [showCharacter, setShowCharacter] = useState(false)
-  const [dialogueStep, setDialogueStep] = useState(0)
+  const [stepIndex, setStepIndex] = useState(-1)
   const [sparkles, setSparkles] = useState([])
 
   useEffect(() => {
@@ -79,20 +104,29 @@ const FixedTimelineRoom = () => {
 
   // Sequence Logic
   useEffect(() => {
-    // Character enters after a moment
-    const entryTimer = setTimeout(() => setShowCharacter(true), 1000)
-    return () => clearTimeout(entryTimer)
+    // Start sequence after 1 second
+    const startTimer = setTimeout(() => {
+      setStepIndex(0)
+    }, 1000)
+
+    return () => clearTimeout(startTimer)
   }, [])
 
   useEffect(() => {
-    if (showCharacter) {
-      // Logic from old FixedTimelineRoom: Wait 500ms then show dialogue
-      const timer = setTimeout(() => setDialogueStep(1), 500)
-      return () => clearTimeout(timer)
+    if (stepIndex >= 0 && stepIndex < SEQUENCE.length) {
+      const currentStep = SEQUENCE[stepIndex]
+      if (currentStep.duration) {
+        const timer = setTimeout(() => {
+          setStepIndex((prev) => prev + 1)
+        }, currentStep.duration)
+        return () => clearTimeout(timer)
+      }
     }
-  }, [showCharacter])
+  }, [stepIndex])
 
   const handleNext = () => setCurrentScene(SCENES.ADVENTURE_CHOICE)
+
+  const currentData = stepIndex >= 0 ? SEQUENCE[stepIndex] : null
 
   return (
     <div className='relative h-full w-full overflow-hidden bg-pink-50 font-sans perspective-[1000px]'>
@@ -145,19 +179,16 @@ const FixedTimelineRoom = () => {
         <div className='absolute -bottom-4 -left-4 w-[120%] h-6 bg-orange-100 shadow-md rounded-sm z-30'></div>
       </div>
 
-      {/* --- THE FLOOR --- */}
-      {/* 3D Perspective Floor (Lighter Wood) */}
-      <div className='absolute bottom-0 left-0 right-0 h-[25%] z-0'>
-        {/* Baseboard */}
-        <div className='absolute top-0 w-full h-4 bg-orange-100 border-t border-white shadow-sm z-20'></div>
-
-        {/* The Floor Plane */}
-        <div
-          className='absolute top-0 left-[-50%] w-[200%] h-[200%] bg-[#3e2723] origin-top' // Dark brown wood base
-          style={{
-            transform: 'perspective(100vh) rotateX(60deg)',
-            // Cleaner wood texture pattern
-            backgroundImage: `
+      {/* --- MAIN CONTENT CONTAINER (Relative Positioning) --- */}
+      <div className='relative h-full w-full'>
+        {/* FLOOR - Relative positioned at bottom */}
+        <div className='relative w-full h-[30%] mt-auto' style={{ top: '70%' }}>
+          {/* Floor Plane */}
+          <div
+            className='relative w-full h-[200%] bg-[#3e2723] origin-top'
+            style={{
+              transform: 'perspective(100vh) rotateX(60deg)',
+              backgroundImage: `
                 repeating-linear-gradient(
                     0deg, 
                     transparent 0px, 
@@ -172,101 +203,107 @@ const FixedTimelineRoom = () => {
                     rgba(255,255,255,0.05) 199px, 
                     rgba(255,255,255,0.05) 200px
                 )
-             `,
-            backgroundSize: '100% 40px',
-            boxShadow: 'inset 0 100px 100px -50px rgba(0,0,0,0.5)', // Darker shadow
-          }}
-        >
-          {/* Sunlight Reflection on the Floor */}
-          <div className='absolute top-[10%] right-[30%] w-[300px] h-[400px] bg-yellow-200/20 blur-[40px] rounded-full transform rotate-12'></div>
+              `,
+              backgroundSize: '100% 40px',
+              boxShadow: 'inset 0 100px 100px -50px rgba(0,0,0,0.5)',
+            }}
+          >
+            {/* Sunlight Reflection on the Floor */}
+            <div className='absolute top-[10%] right-[30%] w-[300px] h-[400px] bg-yellow-200/20 blur-[40px] rounded-full transform rotate-12'></div>
+          </div>
         </div>
-      </div>
 
-      {/* --- INTERACTIVE PROPS --- */}
-
-      {/* No Skeleton! */}
-
-      {/* The Center Table with FRESH Cake */}
-      <div className='absolute bottom-[-20px] left-1/2 -translate-x-1/2 flex flex-col items-center z-20'>
-        <div className='relative mb-[-10px]'>
-          <div className='relative -top-36 md:-top-14'>
-            <div className='flex flex-col justify-center items-center relative'>
+        {/* TABLE & CAKE - Relative positioned near center */}
+        <div
+          className='relative w-full z-15 top-[-80%]'
+          style={{ top: '45%', transform: 'translateY(-50%)' }}
+        >
+          <div className='relative mx-auto w-80'>
+            {/* Cake positioned above the table */}
+            <div className='absolute -top-24 left-1/2 transform -translate-x-1/2 z-20'>
               <img
                 src={CAKE_IMG}
                 alt='Fresh Cake'
-                className='w-40 h-auto object-cover rounded-lg absolute top-[-90px] z-6 drop-shadow-xl'
+                className='w-40 h-auto object-cover rounded-lg drop-shadow-xl'
                 style={{
-                  // NO FILTERS! Fresh cake.
                   filter: 'brightness(1.1) contrast(1.05)',
                 }}
               />
             </div>
-            <div className='w-80'>
+
+            {/* Table */}
+            <div className='relative z-10'>
               <img
                 src={TABLE_IMG}
                 alt='table'
                 className='w-full h-full drop-shadow-[0_20px_30px_rgba(0,0,0,0.3)]'
                 style={{
-                  // Cleaner table
                   filter: 'brightness(1.2) sepia(0.2)',
                 }}
               />
             </div>
           </div>
         </div>
+
+        {/* Low lying fog over the floor (Optional warm fog) */}
+        <div className='relative w-full h-[30%]' style={{ top: '70%' }}>
+          {/* Removing black fog, maybe subtle pinkish? */}
+          <div className='absolute inset-0 bg-linear-to-t from-pink-900/10 to-transparent pointer-events-none z-15'></div>
+        </div>
       </div>
 
       {/* --- CHARACTER --- */}
-      <AnimatePresence>
-        {showCharacter && (
+      <AnimatePresence mode='wait'>
+        {currentData && (
           <motion.div
-            initial={{ x: 300, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ type: 'spring', bounce: 0.5, duration: 1.5 }}
-            className='absolute bottom-20 right-20 z-30'
+            key={currentData.id}
+            initial={{ y: 30, opacity: 0, scale: 0.9 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{
+              y: 10,
+              opacity: 0,
+              scale: 0.95,
+              transition: { duration: 0.05 },
+            }}
+            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+            className='absolute w-full bottom-0 left-1/2 -translate-x-1/2 z-50 pointer-events-none'
           >
-            {/* Simple Geometric Character from original FixedTimelineRoom */}
-            <div className='h-32 w-24 bg-white rounded-full relative shadow-[0_0_20px_rgba(255,255,255,0.8)]'>
-              <div className='absolute top-8 left-6 h-3 w-3 bg-black rounded-full'></div>
-              <div className='absolute top-8 right-6 h-3 w-3 bg-black rounded-full'></div>
-              {/* Happy Smile */}
-              <div className='absolute top-18 left-8 h-2 w-8 bg-black rounded-full'></div>
-              {/* Blush */}
-              <div className='absolute top-12 left-3 h-2 w-4 bg-pink-300 rounded-full blur-[2px]'></div>
-              <div className='absolute top-12 right-3 h-2 w-4 bg-pink-300 rounded-full blur-[2px]'></div>
-            </div>
+            {/* DIALOG BUBBLE */}
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.3, type: 'spring' }}
+              className='absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-4 rounded-2xl shadow-xl max-w-[350px] text-center z-1000'
+            >
+              <p className='font-bold text-lg leading-tight'>
+                {currentData.text}
+              </p>
+              {/* Little triangle pointer */}
+              <div className='absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white transform rotate-45'></div>
+            </motion.div>
 
-            {/* Dialogue Bubble */}
-            <AnimatePresence mode='wait'>
-              {dialogueStep === 1 && (
-                <motion.div
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className='absolute -top-32 -left-48 bg-white text-gray-800 p-4 rounded-xl rounded-br-none font-medium text-lg w-64 text-center shadow-xl border border-pink-100'
-                >
-                  <p>See? I wasn’t late...</p>
-                  <p className='text-sm mt-2 font-bold text-pink-500'>
-                    I was just fixing the timeline! ✨
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* CHARACTER IMAGE */}
+            <img
+              src={currentData.img}
+              alt='Character'
+              className='h-[60vh] md:h-[70vh] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]'
+            />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Navigation Button */}
       <AnimatePresence>
-        {dialogueStep === 1 && (
+        {stepIndex === SEQUENCE.length - 1 && (
           <motion.button
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleNext}
-            className='absolute bottom-10 right-10 px-8 py-3 bg-white/80 backdrop-blur-md border border-pink-200 text-pink-600 font-bold rounded-full hover:bg-white hover:border-pink-300 transition-all z-50 flex items-center gap-2 group shadow-lg'
+            className='absolute bottom-10 right-10 px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-full shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] transition-all z-60 flex items-center gap-2 group cursor-pointer pointer-events-auto'
           >
-            Sounds legit, continue{' '}
+            Continue{' '}
             <span className='group-hover:translate-x-1 transition-transform'>
               →
             </span>
