@@ -12,7 +12,7 @@ const MESSAGE_LINES = [
   'I hope this journey made you smile,',
   'Even half as much as you’ve made my life brighter.',
   'Happy Birthday.',
-  'You deserve every beautiful thing — always.',
+  'You deserve every beautiful thing, always.',
 ]
 
 const MainMessage = () => {

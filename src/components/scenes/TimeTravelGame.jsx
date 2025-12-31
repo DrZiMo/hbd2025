@@ -145,7 +145,7 @@ const TimeTravelGame = () => {
       setShowLevelLine(true)
       setMonth((m) => m - 1)
       setTimeout(() => setShowLevelLine(false), 1800)
-    }, 5000)
+    }, 6000)
 
     return () => clearTimeout(timer)
   }, [month, gameStarted, setCurrentScene])
