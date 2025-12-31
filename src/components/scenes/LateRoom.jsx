@@ -10,6 +10,14 @@ import BIRTHDAY_HAT_IMG from '/birthday hat.png'
 import SPIDERWEB_1_IMG from '/spider web1.png'
 import SPIDERWEB_2_IMG from '/spider web2.png'
 
+// Character Images
+import SAYING_BOO_IMG from '/stickers/saying_boo-removebg-preview.png'
+import HANDS_IN_POCKET_IMG from '/stickers/hands_in_pocket-removebg-preview.png'
+import HANDS_DOWN_IMG from '/stickers/hands_down-removebg-preview.png'
+import LOOKING_SIDE_IMG from '/stickers/looking_side-removebg-preview.png'
+import WORRYING_IMG from '/stickers/worrying-removebg-preview.png'
+import TOUCHING_HEAD_IMG from '/stickers/touching_head-removebg-preview.png'
+
 // --- SUB-COMPONENTS ---
 
 // 1. The Buzzing Fly
@@ -78,10 +86,55 @@ const TatteredCurtain = ({ side }) => {
   )
 }
 
+// Sequence Data
+const SEQUENCE = [
+  {
+    id: 'boo',
+    img: SAYING_BOO_IMG,
+    text: 'boo!',
+    duration: 3000,
+  },
+  {
+    id: 'scared',
+    img: HANDS_IN_POCKET_IMG,
+    text: 'haha! are you scared?',
+    duration: 3000,
+  },
+  {
+    id: 'happy',
+    img: HANDS_DOWN_IMG,
+    text: 'anyway, HAPPY BI-',
+    duration: 2500,
+  },
+  {
+    id: 'late',
+    img: LOOKING_SIDE_IMG,
+    text: 'Oh oh! i think am so late',
+    duration: 3000,
+  },
+  {
+    id: 'very_late',
+    img: WORRYING_IMG,
+    text: 'am 6 months late !',
+    duration: 3000,
+  },
+  {
+    id: 'idea',
+    img: TOUCHING_HEAD_IMG,
+    text: 'but i got an idea!',
+    duration: 2500,
+  },
+  {
+    id: 'click',
+    img: HANDS_IN_POCKET_IMG,
+    text: 'click the explore idea button and see what it is',
+    duration: null, // Stays until clicked
+  },
+]
+
 const LateRoom = () => {
   const { setCurrentScene } = useStory()
-  const [showCharacter, setShowCharacter] = useState(false)
-  const [dialogueStep, setDialogueStep] = useState(0)
+  const [stepIndex, setStepIndex] = useState(-1) // -1 means hidden initially
   const [motes, setMotes] = useState([])
 
   useEffect(() => {
@@ -97,22 +150,29 @@ const LateRoom = () => {
 
   // Sequence Logic
   useEffect(() => {
-    const entryTimer = setTimeout(() => setShowCharacter(true), 1500)
-    return () => clearTimeout(entryTimer)
+    // Start sequence after 1 second
+    const startTimer = setTimeout(() => {
+      setStepIndex(0)
+    }, 1000)
+
+    return () => clearTimeout(startTimer)
   }, [])
 
   useEffect(() => {
-    if (showCharacter) {
-      const booTimer = setTimeout(() => setDialogueStep(1), 400)
-      const realizationTimer = setTimeout(() => setDialogueStep(2), 3000)
-      return () => {
-        clearTimeout(booTimer)
-        clearTimeout(realizationTimer)
+    if (stepIndex >= 0 && stepIndex < SEQUENCE.length) {
+      const currentStep = SEQUENCE[stepIndex]
+      if (currentStep.duration) {
+        const timer = setTimeout(() => {
+          setStepIndex((prev) => prev + 1)
+        }, currentStep.duration)
+        return () => clearTimeout(timer)
       }
     }
-  }, [showCharacter])
+  }, [stepIndex])
 
   const handleNext = () => setCurrentScene(SCENES.TIME_THEORY)
+
+  const currentData = stepIndex >= 0 ? SEQUENCE[stepIndex] : null
 
   return (
     <div className='relative h-full w-full overflow-hidden bg-[#0d0d12] font-sans perspective-[1000px]'>
@@ -189,22 +249,34 @@ const LateRoom = () => {
         <div className='absolute -bottom-4 -left-4 w-[120%] h-6 bg-[#1f1a14] shadow-2xl rounded-sm z-30'></div>
       </div>
 
-      {/* --- THE FLOOR --- */}
-      {/* This is the new "Real" Floor. 
-          We use 3D CSS perspective to tilt a gradient plane.
-      */}
-      <div className='absolute bottom-0 left-0 right-0 h-[25%] z-0'>
-        {/* Baseboard (skirting board) connecting wall and floor */}
-        <div className='absolute top-0 w-full h-4 bg-[#1a1410] border-t border-[#332a24] shadow-lg z-20'></div>
+      {/* --- MAIN CONTENT CONTAINER (Relative Positioning) --- */}
+      <div className='relative h-full w-full'>
+        {/* The Skeleton in Left Corner, centered vertically */}
+        <div className='absolute top-[68%] -left-10 md:left-5 w-32 opacity-70 contrast-125 z-1 transform -translate-y-1/2'>
+          <div className='relative flex flex-col items-center'>
+            <div className='relative'>
+              <img
+                src={BIRTHDAY_HAT_IMG}
+                alt='hat'
+                className='w-full scale-40 grayscale-50 absolute top-[-85px] left-[2px] z-4'
+              />
+              <img
+                src={SKELETON_IMG}
+                alt='Skeleton'
+                className='w-full z-1 scale-140 drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]'
+              />
+            </div>
+          </div>
+        </div>
 
-        {/* The Floor Plane */}
-        <div
-          className='absolute top-0 left-[-50%] w-[200%] h-[200%] bg-[#0f0d0b] origin-top'
-          style={{
-            // This tilts the floor to give depth
-            transform: 'perspective(100vh) rotateX(60deg)',
-            // Wood texture created via gradients
-            backgroundImage: `
+        {/* FLOOR - Relative positioned at bottom */}
+        <div className='relative w-full h-[30%] mt-auto' style={{ top: '70%' }}>
+          {/* Floor Plane */}
+          <div
+            className='relative w-full h-[200%] bg-[#0f0d0b] origin-top'
+            style={{
+              transform: 'perspective(100vh) rotateX(60deg)',
+              backgroundImage: `
                 repeating-linear-gradient(
                     0deg, 
                     transparent 0px, 
@@ -219,66 +291,42 @@ const LateRoom = () => {
                     rgba(0,0,0,0.4) 199px, 
                     rgba(0,0,0,0.4) 200px
                 )
-             `,
-            backgroundSize: '100% 40px', // plank height
-            boxShadow: 'inset 0 100px 100px -50px rgba(0,0,0,0.9)', // Shadow near the wall
-          }}
-        >
-          {/* Moonlight Reflection on the Floor */}
-          {/* This blue blur sits ON the tilted floor, aligning with the window */}
-          <div className='absolute top-[10%] right-[30%] w-[300px] h-[400px] bg-blue-200/5 blur-[50px] rounded-full transform rotate-12'></div>
-        </div>
-
-        {/* Low lying fog over the floor */}
-        <div className='absolute bottom-0 left-0 w-full h-full bg-linear-to-t from-black/60 to-transparent pointer-events-none z-10'></div>
-      </div>
-
-      {/* --- INTERACTIVE PROPS --- */}
-      {/* These are positioned z-20 so they stand ON TOP of the floor visually.
-       */}
-
-      {/* The Skeleton in the Corner */}
-      <div className='absolute bottom-44 md:bottom-24 -left-10 md:left-10 w-32 opacity-70 contrast-125 z-20'>
-        <div className='relative flex flex-col items-center'>
-          <div className='relative'>
-            <img
-              src={BIRTHDAY_HAT_IMG}
-              alt='hat'
-              className='w-full scale-40 grayscale-50 absolute top-[-85px] left-[2px] z-2'
-            />
-            <img
-              src={SKELETON_IMG}
-              alt='Skeleton'
-              className='w-full scale-140 drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]'
-            />
+              `,
+              backgroundSize: '100% 40px',
+              boxShadow: 'inset 0 100px 100px -50px rgba(0,0,0,0.9)',
+            }}
+          >
+            {/* Moonlight Reflection on the Floor */}
+            <div className='absolute top-[10%] right-[30%] w-[300px] h-[400px] bg-blue-200/5 blur-[50px] rounded-full transform rotate-12'></div>
           </div>
         </div>
-      </div>
 
-      {/* The Center Table with Rotten Cake */}
-      <div className='absolute bottom-[-20px] left-1/2 -translate-x-1/2 flex flex-col items-center z-20'>
-        <div className='relative mb-[-10px]'>
-          <div className='relative -top-36 md:-top-18'>
-            <div className='absolute -top-10 left-10'>
+        {/* TABLE & CAKE - Relative positioned near center */}
+        <div
+          className='relative w-full z-15 top-[-80%]'
+          style={{ top: '45%', transform: 'translateY(-50%)' }}
+        >
+          <div className='relative mx-auto w-80'>
+            {/* Flies around the cake */}
+            <div className='absolute -top-10 left-10 z-30'>
               <Fly delay={0} />
             </div>
-            <div className='absolute -top-5 right-5'>
+            <div className='absolute -top-5 right-5 z-30'>
               <Fly delay={0.5} />
             </div>
-            <div className='absolute -top-12 left-1/2'>
+            <div className='absolute -top-12 left-1/2 z-30'>
               <Fly delay={1.2} />
             </div>
-            <div className='absolute top-0 right-10'>
+            <div className='absolute top-0 right-10 z-30'>
               <Fly delay={0.8} />
             </div>
-          </div>
 
-          <div className='relative -top-36 md:-top-14'>
-            <div className='flex flex-col justify-center items-center relative'>
+            {/* Cake positioned above the table */}
+            <div className='absolute -top-24 left-1/2 transform -translate-x-1/2 z-20'>
               <img
                 src={CAKE_IMG}
                 alt='Rotten Cake'
-                className='w-40 h-auto object-cover rounded-lg mask-image-gradient absolute top-[-90px] z-6'
+                className='w-40 h-auto object-cover rounded-lg mask-image-gradient'
                 style={{
                   filter:
                     'grayscale(60%) sepia(80%) hue-rotate(50deg) contrast(120%) brightness(0.6)',
@@ -287,7 +335,9 @@ const LateRoom = () => {
                 }}
               />
             </div>
-            <div className='w-80'>
+
+            {/* Table */}
+            <div className='relative z-10'>
               <img
                 src={TABLE_IMG}
                 alt='table'
@@ -299,35 +349,66 @@ const LateRoom = () => {
             </div>
           </div>
         </div>
+
+        {/* Low lying fog over the floor */}
+        <div className='relative w-full h-[30%]' style={{ top: '70%' }}>
+          <div className='absolute inset-0 bg-linear-to-t from-black/60 to-transparent pointer-events-none z-15'></div>
+        </div>
       </div>
 
       {/* --- CHARACTER & UI --- */}
 
-      <AnimatePresence>
-        {false && (
+      <AnimatePresence mode='wait'>
+        {currentData && (
           <motion.div
-            initial={{ x: 300, y: 0, opacity: 0, rotate: 5 }}
-            animate={{ x: 0, opacity: 1, rotate: 0 }}
-            className='absolute bottom-20 right-24 z-30'
+            key={currentData.id}
+            initial={{ y: 30, opacity: 0, scale: 0.9 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{
+              y: 10,
+              opacity: 0,
+              scale: 0.95,
+              transition: { duration: 0.05 },
+            }}
+            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+            className='absolute w-full bottom-0 left-1/2 -translate-x-1/2 z-50 pointer-events-none'
           >
-            {/* Character code preserved but hidden */}
-            {/* ... */}
+            {/* DIALOG BUBBLE */}
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.3, type: 'spring' }}
+              className='absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-4 rounded-2xl shadow-xl max-w-[350px] text-center z-1000'
+            >
+              <p className='font-bold text-lg leading-tight'>
+                {currentData.text}
+              </p>
+              {/* Little triangle pointer */}
+              <div className='absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white transform rotate-45'></div>
+            </motion.div>
+
+            {/* CHARACTER IMAGE */}
+            <img
+              src={currentData.img}
+              alt='Character'
+              className='h-[60vh] md:h-[70vh] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]'
+            />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Navigation Button */}
       <AnimatePresence>
-        {dialogueStep === 2 && (
+        {stepIndex === SEQUENCE.length - 1 && (
           <motion.button
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleNext}
-            className='absolute bottom-10 right-10 px-8 py-3 bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold rounded-full hover:bg-white/20 hover:border-white/40 transition-all z-50 flex items-center gap-2 group'
+            className='absolute bottom-10 right-10 px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-full shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] transition-all z-60 flex items-center gap-2 group cursor-pointer pointer-events-auto'
           >
-            Explain Theory{' '}
+            Explore Idea{' '}
             <span className='group-hover:translate-x-1 transition-transform'>
               →
             </span>

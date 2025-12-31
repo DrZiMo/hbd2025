@@ -32,7 +32,7 @@ const Floor = () => (
       }}
     />
     <div className='absolute inset-0 bg-linear-to-t from-transparent via-black/20 to-black/50' />
-    <div className='absolute w-full h-10 bg-orange-700'></div>
+    <div className='absolute w-full h-10 bg-[#ee734b]'></div>
   </div>
 )
 
