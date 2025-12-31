@@ -57,7 +57,6 @@ const SEQUENCE = [
 
 const MakingOf = () => {
   const [stepIndex, setStepIndex] = useState(0)
-  const [finished, setFinished] = useState(false)
 
   // Advance sequence
   useEffect(() => {
@@ -67,10 +66,10 @@ const MakingOf = () => {
         setStepIndex((prev) => prev + 1)
       }, currentStep.duration)
       return () => clearTimeout(timer)
-    } else {
-      setFinished(true)
     }
   }, [stepIndex])
+
+  const finished = stepIndex >= SEQUENCE.length
 
   const currentData = stepIndex < SEQUENCE.length ? SEQUENCE[stepIndex] : null
 

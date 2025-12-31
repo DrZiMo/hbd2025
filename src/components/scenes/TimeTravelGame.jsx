@@ -48,12 +48,8 @@ const StarField = () => {
 const RocketDialog = ({ month }) => {
   const messages = {
     12: '🚀 Just rewatched Interstellar… got inspired! I love space & time-travel movies, and I wanted to make something special for you!',
-    11: 'Reversing time from month 12… physics, please be gentle. I hope this journey brings a smile. 😊',
-    10: 'Theoretically, going back in time is possible near a black hole… but I’d do it just to relive our moments together. 💖',
-    9: 'Imagine if we had tech to change the past… I’d spend it making you laugh even more!',
-    8: 'I wish I could go back and enjoy every moment we shared, over and over. 😔💞',
-    7: 'Love you so much, sister 💐 You make every timeline brighter.',
-    6: '✅ Month 6 reached! Timeline stabilized.',
+    11: 'Theoretically, going back in time is possible near a black hole… but I’d do it just to relive our moments together. 💖',
+    10: 'I wish I could go back in time and enjoy every moment we shared, over and over. 😔💞 ... and month 10 reached ✅',
   }
 
   return (
@@ -136,7 +132,7 @@ const TimeTravelGame = () => {
   useEffect(() => {
     if (!gameStarted) return
 
-    if (month <= 6) {
+    if (month <= 10) {
       setTimeout(() => setCurrentScene(SCENES.FIXED_TIMELINE_ROOM), 4000)
       return
     }
@@ -184,7 +180,7 @@ const TimeTravelGame = () => {
                 Time Rewind Protocol
               </h3>
               <p className='text-slate-400 mb-6'>
-                Traveling back from <b>Month 12</b> to <b>Month 06</b>.
+                Traveling back from <b>Month 12</b> to <b>Month 10</b>.
                 <br />
                 Inspired by space, time, and a little bit of Interstellar 💫
               </p>

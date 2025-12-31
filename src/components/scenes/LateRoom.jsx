@@ -115,7 +115,7 @@ const SEQUENCE = [
   {
     id: 'very_late',
     img: WORRYING_IMG,
-    text: 'am 6 months late !',
+    text: 'am 2 months late !',
     duration: 3000,
   },
   {
