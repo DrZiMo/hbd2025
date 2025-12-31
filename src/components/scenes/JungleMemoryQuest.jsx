@@ -594,7 +594,7 @@ const JungleMemoryQuest = () => {
                 {FINAL_MESSAGE.body}
               </motion.div>
               <button
-                onClick={() => setCurrentScene(SCENES.PYRAMID_OF_EMOTIONS)}
+                onClick={() => setCurrentScene(SCENES.PYRAMID_GAME_INTRO)}
                 className='px-10 py-4 bg-rose-800/30 hover:bg-rose-700/40 border border-rose-500/50 rounded-full text-rose-300 text-lg transition-all hover:scale-105 active:scale-95 shadow-xl'
               >
                 🌷 Keep These Memories Safe

@@ -105,7 +105,7 @@ const Modal = ({ title, text, onClose }) => (
     <motion.div
       initial={{ scale: 0.8 }}
       animate={{ scale: 1 }}
-      className='bg-linear-to-br from-[#f5d58c] to-[#b89445] p-8 mx-4 rounded-xl text-center max-w-md text-orange-950'
+      className='bg-gradient-to-br from-[#f5d58c] to-[#b89445] p-8 mx-4 rounded-xl text-center max-w-md text-orange-950'
     >
       <h2 className='text-3xl font-serif mb-4'>{title}</h2>
       <p className='mb-6'>{text}</p>

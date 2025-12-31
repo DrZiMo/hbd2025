@@ -8,6 +8,7 @@ import FixedTimelineRoom from './scenes/FixedTimelineRoom'
 import AdventureChoice from './scenes/AdventureChoice'
 import MemoryIntro from './scenes/MemoryIntro'
 import JungleMemoryQuest from './scenes/JungleMemoryQuest'
+import PyramidIntro from './scenes/PyramidIntro'
 import PyramidOfEmotions from './scenes/PyramidOfEmotions'
 import MainMessage from './scenes/MainMessage'
 import WishInteraction from './scenes/WishInteraction'
@@ -42,6 +43,8 @@ const SceneManager = () => {
         return <MemoryIntro />
       case SCENES.JUNGLE_MEMORY_QUEST:
         return <JungleMemoryQuest />
+      case SCENES.PYRAMID_GAME_INTRO:
+        return <PyramidIntro />
       case SCENES.PYRAMID_OF_EMOTIONS:
         return <PyramidOfEmotions />
       case SCENES.MAIN_MESSAGE:

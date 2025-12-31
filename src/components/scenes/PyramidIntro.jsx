@@ -4,31 +4,50 @@ import { useStory, SCENES } from '../../context/StoryContext'
 
 // Character Images
 import HANDS_IN_POCKET_IMG from '/stickers/hands_in_pocket-removebg-preview.png'
-import TALKING_2_IMG from '/stickers/talking_2-removebg-preview.png'
+import WORRYING_IMG from '/stickers/worrying-removebg-preview.png'
+import TALKING_1_IMG from '/stickers/talking_1-removebg-preview.png'
 import GREETING_IMG from '/stickers/greeting-removebg-preview.png'
 
 const SEQUENCE = [
   {
-    id: 'intro',
+    id: 'memories_planted',
     img: HANDS_IN_POCKET_IMG,
-    text: 'now I want you to play a game called memory game',
-    duration: 3000,
+    text: 'That was some memories that still planted in my mind',
+    duration: 4000,
   },
   {
-    id: 'explanation',
-    img: TALKING_2_IMG,
-    text: 'a pop up will show and tells you how to play it',
+    id: 'request_share',
+    img: HANDS_IN_POCKET_IMG,
+    text: "can you please share some memories from you with me that i didn't mention",
+    duration: 4500,
+  },
+  {
+    id: 'whatsapp_tiktok',
+    img: WORRYING_IMG,
+    text: 'tell me on whatsapp or tiktok later am gonna ask you inshallah',
+    duration: 4000,
+  },
+  {
+    id: 'next_game',
+    img: HANDS_IN_POCKET_IMG,
+    text: 'lets go to another game and its the last one called Pyramid of emotions',
+    duration: 4000,
+  },
+  {
+    id: 'read_popup',
+    img: TALKING_1_IMG,
+    text: 'Like before pop ups infos about the game, so read them.',
     duration: 4000,
   },
   {
     id: 'ready',
     img: GREETING_IMG,
-    text: 'are you ready ?',
+    text: 'are you ready?',
     duration: null, // Waits for button click
   },
 ]
 
-const MemoryIntro = () => {
+const PyramidIntro = () => {
   const { setCurrentScene } = useStory()
   const [stepIndex, setStepIndex] = useState(-1)
 
@@ -53,15 +72,15 @@ const MemoryIntro = () => {
     }
   }, [stepIndex])
 
-  const handleNext = () => setCurrentScene(SCENES.JUNGLE_MEMORY_QUEST)
+  const handleNext = () => setCurrentScene(SCENES.PYRAMID_OF_EMOTIONS)
 
   const currentData =
     stepIndex >= 0 && stepIndex < SEQUENCE.length ? SEQUENCE[stepIndex] : null
 
   return (
-    <div className='relative h-full w-full overflow-hidden bg-sky-900 font-sans perspective-[1000px]'>
-      {/* Background Atmosphere - Simplified Jungle/Night Vibe */}
-      <div className='absolute inset-0 bg-[radial-gradient(circle_at_50%_60%,rgba(20,40,60,0.4)_0%,rgba(5,10,20,0.95)_100%)] z-10 pointer-events-none'></div>
+    <div className='relative h-full w-full overflow-hidden bg-rose-950 font-sans perspective-[1000px]'>
+      {/* Background Atmosphere - Mysterious Pyramid Vibe */}
+      <div className='absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(60,20,30,0.5)_0%,rgba(10,5,5,0.95)_100%)] z-10 pointer-events-none'></div>
 
       {/* Character Container */}
       <AnimatePresence mode='wait'>
@@ -125,4 +144,4 @@ const MemoryIntro = () => {
   )
 }
 
-export default MemoryIntro
+export default PyramidIntro
