@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { useStory, SCENES } from '../../context/StoryContext'
 
 // Character Images
@@ -66,7 +66,7 @@ const MemoryIntro = () => {
       {/* Character Container */}
       <AnimatePresence mode='wait'>
         {currentData && (
-          <motion.div
+          <Motion.div
             key={currentData.id}
             initial={{ y: 30, opacity: 0, scale: 0.9 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
@@ -80,18 +80,18 @@ const MemoryIntro = () => {
             className='absolute w-full bottom-0 left-1/2 -translate-x-1/2 z-50 pointer-events-none'
           >
             {/* DIALOG BUBBLE */}
-            <motion.div
+            <Motion.div
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.3, type: 'spring' }}
-              className='absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-4 rounded-2xl shadow-xl max-w-[350px] text-center z-1000'
+              className='absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-4 rounded-2xl shadow-xl max-w-[350px] text-center z-[1000]'
             >
               <p className='font-bold text-lg leading-tight'>
                 {currentData.text}
               </p>
               {/* Little triangle pointer */}
               <div className='absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white transform rotate-45'></div>
-            </motion.div>
+            </Motion.div>
 
             {/* CHARACTER IMAGE */}
             <img
@@ -99,26 +99,26 @@ const MemoryIntro = () => {
               alt='Character'
               className='h-[60vh] md:h-[70vh] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]'
             />
-          </motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
 
       {/* Ready Button */}
       <AnimatePresence>
         {stepIndex === SEQUENCE.length - 1 && (
-          <motion.button
+          <Motion.button
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleNext}
-            className='absolute bottom-10 right-10 px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-full shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] transition-all z-60 flex items-center gap-2 group cursor-pointer pointer-events-auto'
+            className='absolute bottom-10 right-10 px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-full shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)] transition-all z-[60] flex items-center gap-2 group cursor-pointer pointer-events-auto'
           >
             Ready{' '}
             <span className='group-hover:translate-x-1 transition-transform'>
               →
             </span>
-          </motion.button>
+          </Motion.button>
         )}
       </AnimatePresence>
     </div>

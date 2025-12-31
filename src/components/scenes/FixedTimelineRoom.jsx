@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { useStory, SCENES } from '../../context/StoryContext'
 
 // Images (Keeping the Cake and Table, dropping the horror ones)

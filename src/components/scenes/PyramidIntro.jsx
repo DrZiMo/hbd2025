@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { useStory, SCENES } from '../../context/StoryContext'
 
 // Character Images
@@ -13,37 +13,37 @@ const SEQUENCE = [
     id: 'memories_planted',
     img: HANDS_IN_POCKET_IMG,
     text: 'That was some memories that still planted in my mind',
-    duration: 4000,
+    duration: 5000,
   },
   {
     id: 'request_share',
     img: HANDS_IN_POCKET_IMG,
     text: "can you please share some memories from you with me that i didn't mention",
-    duration: 4500,
+    duration: 5500,
   },
   {
     id: 'whatsapp_tiktok',
     img: WORRYING_IMG,
     text: 'tell me on whatsapp or tiktok later am gonna ask you inshallah',
-    duration: 4000,
+    duration: 5000,
   },
   {
     id: 'next_game',
     img: HANDS_IN_POCKET_IMG,
     text: 'lets go to another game and its the last one called Pyramid of emotions',
-    duration: 4000,
+    duration: 5500,
   },
   {
     id: 'read_popup',
     img: TALKING_1_IMG,
     text: 'Like before pop ups infos about the game, so read them.',
-    duration: 4000,
+    duration: 5000,
   },
   {
     id: 'ready',
     img: GREETING_IMG,
     text: 'are you ready?',
-    duration: null, // Waits for button click
+    duration: null,
   },
 ]
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { useStory, SCENES } from '../../context/StoryContext'
 import BG_IMG from '/pyramid background.jpg'
 import STONE_TEXTURE from '/stone-texture.jpeg'
@@ -10,24 +10,27 @@ import STONE_TEXTURE from '/stone-texture.jpeg'
 const CHAMBERS = [
   {
     title: 'Chamber of Regret',
-    intro: 'Every journey begins with acknowledging mistakes.',
-    message: 'I was late... and that regret stayed with me.',
+    intro: 'Every journey begins with honesty.',
+    message:
+      'I was late, and I know that hurt. I missed moments I can’t bring back. I carry that sadness with me, because you matter to me.',
   },
   {
     title: 'Chamber of Gratitude',
-    intro: 'Gratitude is the key that opens heavy doors.',
-    message: 'Thank you for your patience.',
+    intro: 'Gratitude opens the heart.',
+    message:
+      'Thank you for being patient with me. Thank you for waiting, even when I failed. Your kindness means more to me than words can say.',
   },
   {
     title: 'Chamber of Promise',
-    intro: 'A promise is not perfection — it is effort.',
-    message: 'Not perfect — but present, learning, and trying.',
+    intro: 'A promise means trying again.',
+    message:
+      'I am not perfect, but I will try harder. I promise to be there, to care more, and to never stop showing you my love.',
   },
   {
     title: 'Chamber of Heart',
-    intro: 'This is the final chamber. The truth lives here.',
+    intro: 'This is where the truth lives.',
     message:
-      'I was late.\nBut my heart never missed the moment.\n\nHappy Birthday.\nThank you for waiting for me, little sister.',
+      'I was late.\nBut my heart was always with you.\n\nHappy Birthday.\nThank you for waiting for me, my little sister.',
   },
 ]
 
@@ -95,7 +98,7 @@ const StoneTile = ({ num, onClick, disabled }) => (
 // ===============================
 // MODAL
 // ===============================
-const Modal = ({ title, text, onClose }) => (
+const Modal = ({ title, children, onClose }) => (
   <motion.div
     className='fixed inset-0 z-50 flex items-center justify-center bg-black/80'
     initial={{ opacity: 0 }}
@@ -108,7 +111,7 @@ const Modal = ({ title, text, onClose }) => (
       className='bg-gradient-to-br from-[#f5d58c] to-[#b89445] p-8 mx-4 rounded-xl text-center max-w-md text-orange-950'
     >
       <h2 className='text-3xl font-serif mb-4'>{title}</h2>
-      <p className='mb-6'>{text}</p>
+      <div className='mb-6 text-sm md:text-base space-y-4'>{children}</div>
       <button
         onClick={onClose}
         className='px-6 py-2 bg-black text-white rounded-full'
@@ -168,9 +171,31 @@ const PyramidOfEmotions = () => {
         {showIntro && (
           <Modal
             title='Pyramid of Emotions'
-            text='Solve each chamber to ascend.'
             onClose={() => setShowIntro(false)}
-          />
+          >
+            <p>
+              Welcome to the journey of truth. You must pass through four
+              chambers to reach the heart:
+            </p>
+            <ul className='text-left list-disc pl-5 space-y-1 my-2 font-serif bg-black/10 p-3 rounded-lg'>
+              <li>
+                <b>Chamber of Regret:</b> Acknowledging the past.
+              </li>
+              <li>
+                <b>Chamber of Gratitude:</b> Appreciating the present.
+              </li>
+              <li>
+                <b>Chamber of Promise:</b> Vowing for the future.
+              </li>
+              <li>
+                <b>Chamber of Heart:</b> The final truth.
+              </li>
+            </ul>
+            <p className='font-bold mt-4'>How to Play:</p>
+            <p>
+              Tap the stones in order from <b>1 to 9</b> to unlock each chamber.
+            </p>
+          </Modal>
         )}
       </AnimatePresence>
 
@@ -178,9 +203,10 @@ const PyramidOfEmotions = () => {
         {!showIntro && showChamberPopup && (
           <Modal
             title={chamber.title}
-            text={chamber.intro}
             onClose={() => setShowChamberPopup(false)}
-          />
+          >
+            <p>{chamber.intro}</p>
+          </Modal>
         )}
       </AnimatePresence>
 
