@@ -6,6 +6,7 @@ import TimeTheory from './scenes/TimeTheory'
 import TimeTravelGame from './scenes/TimeTravelGame'
 import FixedTimelineRoom from './scenes/FixedTimelineRoom'
 import AdventureChoice from './scenes/AdventureChoice'
+import MemoryIntro from './scenes/MemoryIntro'
 import JungleMemoryQuest from './scenes/JungleMemoryQuest'
 import PyramidOfEmotions from './scenes/PyramidOfEmotions'
 import MainMessage from './scenes/MainMessage'
@@ -37,6 +38,8 @@ const SceneManager = () => {
         return <FixedTimelineRoom />
       case SCENES.ADVENTURE_CHOICE:
         return <AdventureChoice />
+      case SCENES.MEMORY_GAME_INTRO:
+        return <MemoryIntro />
       case SCENES.JUNGLE_MEMORY_QUEST:
         return <JungleMemoryQuest />
       case SCENES.PYRAMID_OF_EMOTIONS:

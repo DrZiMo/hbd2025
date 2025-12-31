@@ -7,7 +7,7 @@ const AdventureChoice = () => {
   const [rejected, setRejected] = useState(false)
 
   const handleYes = () => {
-    setCurrentScene(SCENES.JUNGLE_MEMORY_QUEST)
+    setCurrentScene(SCENES.MEMORY_GAME_INTRO)
   }
 
   const handleNo = () => {
