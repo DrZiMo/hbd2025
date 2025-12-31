@@ -137,7 +137,7 @@ const Seed = ({ x, y, onClick }) => (
 )
 
 // Flower with improved animation
-const Flower = ({ index, onClick }) => {
+const Flower = ({ index, x, y, onClick }) => {
   const colors = [
     'from-pink-400 to-rose-600',
     'from-purple-400 to-indigo-600',
@@ -161,9 +161,9 @@ const Flower = ({ index, onClick }) => {
       whileHover={{ scale: 1.15 }}
       className='absolute cursor-pointer'
       style={{
-        transform: `rotate(${index * 120}deg) translateY(-90px) rotate(-${
-          index * 120
-        }deg)`,
+        left: `${x}%`,
+        top: `${y}%`,
+        transform: 'translate(-50%, -50%)',
         zIndex: 40,
       }}
       onClick={(e) => {
@@ -312,9 +312,15 @@ const JungleMemoryQuest = () => {
   }
 
   // Handle soil click
-  const handleSoilClick = () => {
+  const handleSoilClick = (e) => {
     if (inventory === null) return
-    setBloomedFlowers((prev) => [...prev, inventory])
+
+    // Get click position relative to the element
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
+
+    setBloomedFlowers((prev) => [...prev, { id: inventory, x, y }])
     setInventory(null)
     setPlantedCount((prev) => prev + 1)
   }
@@ -332,7 +338,7 @@ const JungleMemoryQuest = () => {
     setActiveMemory(null)
 
     if (storedMemories.length + 1 >= 3) {
-      setTimeout(() => setShowFinalHeart(true), 1000)
+      setTimeout(() => setShowFinalHeart(true), 500)
     }
   }
 
@@ -340,6 +346,15 @@ const JungleMemoryQuest = () => {
   const closeMemory = () => {
     setActiveMemory(null)
   }
+
+  // Memoize soil texture to avoid random re-renders
+  const soilTexture = React.useMemo(() => {
+    return [...Array(30)].map((_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+    }))
+  }, [])
 
   return (
     <div className='relative h-screen bg-[#0a120a] overflow-hidden font-serif'>
@@ -446,22 +461,24 @@ const JungleMemoryQuest = () => {
         >
           {/* Soil texture */}
           <div className='absolute inset-0 rounded-full overflow-hidden'>
-            {[...Array(30)].map((_, i) => (
+            {soilTexture.map((spot) => (
               <div
-                key={i}
+                key={spot.id}
                 className='absolute w-4 h-4 bg-black/20 rounded-full'
                 style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
+                  left: `${spot.x}%`,
+                  top: `${spot.y}%`,
                 }}
               />
             ))}
           </div>
 
-          {bloomedFlowers.map((seedId, index) => (
+          {bloomedFlowers.map((flower, index) => (
             <Flower
-              key={seedId}
+              key={flower.id}
               index={index}
+              x={flower.x}
+              y={flower.y}
               onClick={() => handleFlowerClick(index)}
             />
           ))}

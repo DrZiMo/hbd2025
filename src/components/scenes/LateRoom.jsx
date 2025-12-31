@@ -153,7 +153,7 @@ const LateRoom = () => {
     // Start sequence after 1 second
     const startTimer = setTimeout(() => {
       setStepIndex(0)
-    }, 1000)
+    }, 2000)
 
     return () => clearTimeout(startTimer)
   }, [])
