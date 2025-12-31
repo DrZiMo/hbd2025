@@ -44,7 +44,7 @@ const SEQUENCE = [
   {
     id: 6,
     img: WORRYING_IMG,
-    text: 'I know it is not perfect but you know ... so',
+    text: 'I know it is not perfect but you know and sorry for making you awake since you will wake up 2am ... so',
     duration: 3500,
   },
   {
